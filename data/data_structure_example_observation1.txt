@@ -1,0 +1,34 @@
+{
+	"text":"Bisher wurden 76 Vorhaben auf einer Gesamtfl\u00e4che von \u00fcber 3.500 Quadratkilometern in die F\u00f6rderung aufgenommen",
+	"tokens":[
+		{"text":"Bisher","start":0,"end":6,"id":0},
+		{"text":"wurden","start":7,"end":13,"id":1},
+		{"text":"76","start":14,"end":16,"id":2},
+		{"text":"Vorhaben","start":17,"end":25,"id":3},
+		{"text":"auf","start":26,"end":29,"id":4},
+		{"text":"einer","start":30,"end":35,"id":5},
+		{"text":"Gesamtfl\u00e4che","start":36,"end":48,"id":6},
+		{"text":"von","start":49,"end":52,"id":7},
+		{"text":"\u00fcber","start":53,"end":57,"id":8},
+		{"text":"3.500","start":58,"end":63,"id":9},
+		{"text":"Quadratkilometern","start":64,"end":81,"id":10},
+		{"text":"in","start":82,"end":84,"id":11},
+		{"text":"die","start":85,"end":88,"id":12},
+		{"text":"F\u00f6rderung","start":89,"end":98,"id":13},
+		{"text":"aufgenommen","start":99,"end":110,"id":14}
+	],
+	"meta":{
+		"id":508530,
+		"date":"2012-11-22",
+		"title":"Naturschutzgro\u00dfprojekt \"Allg\u00e4uer Moorallianz\" verbindet Naturschutz und Klimaschutz"
+	},
+	"_input_hash":-415266398,
+	"_task_hash":-2036126836,
+	"_view_id":"blocks",
+	"config":{"choice_style":"single"},
+	"accept":[0],
+	"answer":"accept",
+	"_timestamp":1714294944,
+	"_annotator_id":"output_top_custom.jsonl-SamanthaHTest",
+	"_session_id":"output_top_custom.jsonl-SamanthaHTest"
+}

@@ -1,0 +1,7 @@
+experiment,prec
+1000_lora_baseline,0.676
+1000_pfeiffer_baseline,0.691
+1000_pfeifferinv_baseline,0.681
+2000_lora_baseline,0.689
+2000_pfeiffer_baseline,0.706
+2000_pfeifferinv_baseline,0.674
