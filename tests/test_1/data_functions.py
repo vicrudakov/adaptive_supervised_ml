@@ -54,8 +54,8 @@ def prepare_data_files(experiment, file, mapping, seed=42):
     train = train_full[['text', 'label']]
 
     # Save training and test datasets
-    train.to_csv(experiment / "train.csv", index=False, header=False)
-    test.to_csv(experiment / "test.csv", index=False, header=False)
+    # train.to_csv(experiment / "train.csv", index=False, header=False) # temporary for the test
+    # test.to_csv(experiment / "test.csv", index=False, header=False) # temporary for the test
     logger.debug(f'Prepared data; train size: {len(train)}, test size: {len(test)}')
 
 def data_from_csv(path, pattern, verbalizer, tokenizer, split_name):

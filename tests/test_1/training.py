@@ -16,7 +16,7 @@ from al_functions import select_obs
 from data_functions import prepare_experiment_files
 from peft_functions import EWCAdapterTrainer
 from pet_functions import PEThead
-from utility_functions import compute_metrics, read_config
+from utility_functions import read_config
 warnings.simplefilter(action='ignore', category=FutureWarning)
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -61,11 +61,6 @@ def evaluate_model(model, data, output_dir):
             preds[i] = np.argmax(res.cpu().detach().numpy(), axis = 1)[0]
             probs[i] = torch.round(torch.softmax(res.cpu().detach(), dim=1).squeeze(), decimals=3).tolist()
 
-    # Compute and save metrics
-    scores = compute_metrics(data['actual_test'], preds)
-    with open(output_dir / "scores.json", "w") as fp:
-        json.dump(scores, fp)
-
     # Create and save classification report
     report = pd.DataFrame(classification_report(data['actual_test'], preds, output_dict=True)).T
     report.to_csv(f'{str(output_dir)}/classification_report.csv')
@@ -96,107 +91,109 @@ def run_adapter_training(experiment, config, data, device, adapter_name="myadapt
     None. Saves PEFT module files for each iteration.
     """
 
-    logger.debug('Started training')
+    for run in range(1, config['active_learning']['run_number'] + 1):
+        logger.debug(f'Training run: {run}')
+        logger.debug(f'Started training')
 
-    # Set adapter configuration
-    arch = config['adapter']['arch']
-    if arch == "pfeiffer":
-        config_adapter = SeqBnConfig(reduction_factor=config['adapter']['c_rate'])
-    if arch == "pfeifferinv":
-        config_adapter = SeqBnInvConfig(reduction_factor=config['adapter']['c_rate'])
-    if arch == "lora":
-        config_adapter = LoRAConfig(r=config['adapter']['r'], alpha=config['adapter']['alpha'])
-    if arch == "ia3":
-        config_adapter = IA3Config()
+        # Set adapter configuration
+        arch = config['adapter']['arch']
+        if arch == "pfeiffer":
+            config_adapter = SeqBnConfig(reduction_factor=config['adapter']['c_rate'])
+        if arch == "pfeifferinv":
+            config_adapter = SeqBnInvConfig(reduction_factor=config['adapter']['c_rate'])
+        if arch == "lora":
+            config_adapter = LoRAConfig(r=config['adapter']['r'], alpha=config['adapter']['alpha'])
+        if arch == "ia3":
+            config_adapter = IA3Config()
 
-    # Set model configuration
-    output_dir = experiment / config['data']['output_dir']
-    training_args = TrainingArguments(
-        seed=int(1895),
-        full_determinism=True,
-        learning_rate=config['adapter']['learning_rate'],
-        num_train_epochs=config['adapter']['num_train_epochs'],
-        logging_strategy="no",
-        eval_strategy="no",
-        save_strategy="no",
-        output_dir=output_dir,
-        overwrite_output_dir=True,
-        remove_unused_columns=False,
-        per_device_train_batch_size=config['adapter']['per_device_train_batch_size']
-    )
-    model = AutoAdapterModel.from_pretrained(config['adapter']['model'])
-    model.add_adapter(adapter_name, config=config_adapter)
-    model.register_custom_head("PEThead", PEThead)
-    model.add_custom_head(head_type="PEThead", head_name=adapter_name, id2tokenid=data['id2tokenid'])
+        # Set model configuration
+        output_dir = experiment / config['data']['output_dir'] / f"run_{run}"
+        training_args = TrainingArguments(
+            seed=int(1895 * run),
+            full_determinism=True,
+            learning_rate=config['adapter']['learning_rate'],
+            num_train_epochs=config['adapter']['num_train_epochs'],
+            logging_strategy="no",
+            eval_strategy="no",
+            save_strategy="no",
+            output_dir=output_dir,
+            overwrite_output_dir=True,
+            remove_unused_columns=False,
+            per_device_train_batch_size=config['adapter']['per_device_train_batch_size']
+        )
+        model = AutoAdapterModel.from_pretrained(config['adapter']['model'])
+        model.add_adapter(adapter_name, config=config_adapter)
+        model.register_custom_head("PEThead", PEThead)
+        model.add_custom_head(head_type="PEThead", head_name=adapter_name, id2tokenid=data['id2tokenid'])
 
-    # Set training configuration
-    al_iterations = config['active_learning']['al_iteration_number']
-    al_strategy = config['active_learning']['al_strategy']
-    model.train_adapter(adapter_name)
-    selection_kwargs = {}
-    if al_strategy == "random":
-        selection_kwargs["seed"] = 42
-    elif al_strategy == "uncertainty":
-        selection_kwargs["model"] = model
-    elif al_strategy == "diversity":
-        selection_kwargs["emb_dir"] = experiment / config['data']['emb_dir']
-        selection_kwargs["seed"] = 42
-    available_train_rows = list(range(0, len(data['train_dataset']["train"])))
-    trainer = EWCAdapterTrainer(
-        model=model,
-        lambda_ewc=config['active_learning']['lambda_ewc'],
-        args=training_args
-    )
+        # Set training configuration
+        al_iterations = config['active_learning']['al_iteration_number']
+        al_strategy = config['active_learning']['al_strategy']
+        model.train_adapter(adapter_name)
+        selection_kwargs = {}
+        if al_strategy == "random":
+            selection_kwargs["seed"] = 42
+        elif al_strategy == "uncertainty":
+            selection_kwargs["model"] = model
+        elif al_strategy == "diversity":
+            selection_kwargs["emb_dir"] = experiment / config['data']['emb_dir']
+            selection_kwargs["seed"] = 42
+        available_train_rows = list(range(0, len(data['train_dataset']["train"])))
+        trainer = EWCAdapterTrainer(
+            model=model,
+            lambda_ewc=config['active_learning']['lambda_ewc'],
+            args=training_args
+        )
 
-    # Run continual active learning or baseline training
-    for al_iter in range(al_iterations + 1):
-        os.makedirs(output_dir / f"{adapter_name}_{al_iter}", exist_ok=True)
-        logger.debug(f"AL iteration: {al_iter}")
+        # Run continual active learning or baseline training
+        for al_iter in range(al_iterations + 1):
+            os.makedirs(output_dir / f"{adapter_name}_{al_iter}", exist_ok=True)
+            logger.debug(f"AL iteration: {al_iter}")
 
-        # Select observations for training
-        logger.debug(f'Started selecting training observations for AL iteration {al_iter}')
-        if al_iter == 0:
-            current_train_rows, current_train_dataset, available_train_rows = select_obs(
-                strategy="random",
-                data=data,
-                available_train_rows=available_train_rows,
-                n=int(len(data['train_dataset']["train"]) * config['active_learning']['start_dataset_fraction']),
-                **{"seed": 42}
-            )
-        else:
-            current_train_rows, current_train_dataset, available_train_rows = select_obs(
-                strategy=al_strategy,
-                data=data,
-                available_train_rows=available_train_rows,
-                n=int(len(data['train_dataset']["train"]) * config['active_learning']['query_size_fraction']),
-                **selection_kwargs
-            )
-        trainer.train_dataset = current_train_dataset
+            # Select observations for training
+            logger.debug(f'Started selecting training observations for AL iteration {al_iter}')
+            if al_iter == 0:
+                current_train_rows, current_train_dataset, available_train_rows = select_obs(
+                    strategy="random",
+                    data=data,
+                    available_train_rows=available_train_rows,
+                    n=int(len(data['train_dataset']["train"]) * config['active_learning']['start_dataset_fraction']),
+                    **{"seed": 42}
+                )
+            else:
+                current_train_rows, current_train_dataset, available_train_rows = select_obs(
+                    strategy=al_strategy,
+                    data=data,
+                    available_train_rows=available_train_rows,
+                    n=int(len(data['train_dataset']["train"]) * config['active_learning']['query_size_fraction']),
+                    **selection_kwargs
+                )
+            trainer.train_dataset = current_train_dataset
 
-        # Run PEFT module training for current iteration
-        logger.debug(f'Started training for AL iteration {al_iter}, current train size: {len(current_train_rows)}')
-        training_starttime = time.time()
-        # trainer.train()
-        training_endtime = time.time()
-        if arch in ("ia3", "lora"):
-            model.merge_adapter(adapter_name)
-        logger.debug(f'Started computing Fisher information matrix for AL iteration {al_iter}')
-        trainer.save_fisher(model, current_train_dataset, device)
+            # Run PEFT module training for current iteration
+            logger.debug(f'Started training for AL iteration {al_iter}, current train size: {len(current_train_rows)}')
+            training_starttime = time.time()
+            trainer.train()
+            training_endtime = time.time()
+            if arch in ("ia3", "lora"):
+                model.merge_adapter(adapter_name)
+            logger.debug(f'Started computing Fisher information matrix for AL iteration {al_iter}')
+            trainer.save_fisher(model, current_train_dataset, device)
 
-        # Evaluate PEFT module
-        logger.debug(f'Started evaluation for AL iteration {al_iter}')
-        evaluate_model(model, data, output_dir / f"{adapter_name}_{al_iter}")
-        evaluate_endtime = time.time()
-        times = {"train": training_endtime - training_starttime, "test": evaluate_endtime - training_endtime}
-        with open(output_dir / f"{adapter_name}_{al_iter}" / "time.json", "w") as fp:
-            json.dump(times, fp)
+            # Evaluate PEFT module
+            logger.debug(f'Started evaluation for AL iteration {al_iter}')
+            evaluate_model(model, data, output_dir / f"{adapter_name}_{al_iter}")
+            evaluate_endtime = time.time()
+            times = {"train": training_endtime - training_starttime, "test": evaluate_endtime - training_endtime}
+            with open(output_dir / f"{adapter_name}_{al_iter}" / "time.json", "w") as fp:
+                json.dump(times, fp)
 
-        gc.collect()
+            gc.collect()
 
-        # Save PEFT module files
-        model.save_adapter(output_dir / f"{adapter_name}_{al_iter}", adapter_name)
+            # Save PEFT module files
+            model.save_adapter(output_dir / f"{adapter_name}_{al_iter}", adapter_name)
 
-        torch.cuda.empty_cache()
+            torch.mps.empty_cache()
 
 def run_experiment(path):
     """A function to run a full experiment pipeline for training.
@@ -215,9 +212,9 @@ def run_experiment(path):
         path = Path(path)
     logger.debug(f'Running experiment {path}')
     config = read_config(path)
-    data = prepare_experiment_files(path, config, device='cuda')
-    run_adapter_training(path, config, data, device='cuda')
+    data = prepare_experiment_files(path, config, device='mps')
+    run_adapter_training(path, config, data, device='mps')
 
 
 if __name__ == '__main__':
-    pass
+    run_experiment("experiments/experiment_100")

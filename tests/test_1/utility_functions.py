@@ -9,34 +9,6 @@ from sklearn.metrics import f1_score, recall_score, precision_score
 from tqdm import tqdm
 from openai import OpenAI
 
-def compute_metrics(a, p):
-    """A function to compute classification performance measures accuracy, precision, recall and F1-score.
-
-    Parameters
-    ----------
-    a : array
-        Actual target values.
-    p : array
-        Predicted target values.
-
-    Returns
-    -------
-    dict
-        A dictionary containing:
-        - 'accuracy': float
-          The proportion of correct predictions.
-        - 'f1': float
-          The macro-averaged F1-score.
-        - 'precision': float
-          The macro-averaged precision score.
-        - 'recall': float
-          The macro-averaged recall score.
-    """
-    return {"accuracy": (p == a).mean(),
-            "f1": f1_score(a, p, average='macro'),
-            "precision": precision_score(a, p, average='macro'),
-            "recall": recall_score(a, p, average='macro')}
-
 def encode_batch(batch, tokenizer, max_length):
     """A function to tokenize batches of text data.
 
