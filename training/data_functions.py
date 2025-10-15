@@ -7,57 +7,6 @@ from transformers import AutoTokenizer
 import numpy as np
 from utility_functions import encode_batch, insert_list, extend_attention_mask, create_embeddings
 
-
-def prepare_data_files(experiment, file, mapping, seed=42):
-    """A function to map labels, split a dataset into training and test sets, and save the resulting files.
-
-    Parameters
-    ----------
-    experiment : pathlib.Path
-        Path to the experiment directory where the dataset file is located and where the output train/test CSV files
-        will be saved.
-    file : str or pathlib.Path
-        Name or path of the input dataset CSV file relative to `experiment`.
-    mapping : dict
-        A dictionary mapping original labels to their new representations.
-    seed : int, optional
-        Random seed used for reproducible sampling when creating the test set. Default is 42.
-
-    Returns
-    -------
-    None. Saves two CSV files in the `experiment` directory:
-        - "train.csv": training set containing text and mapped labels, no header
-        - "test.csv": test set containing text and mapped labels, no header
-    """
-
-    # Load dataset and map labels to new values
-    data = pd.read_csv(experiment / file)
-    data['label'] = [mapping[value] for value in data['label'].tolist()]
-
-    # Get unique documents-year pairs and assign them to 3 year bins
-    documents = data[['document', 'year']].drop_duplicates()
-    documents['year_bin'] = pd.qcut(documents['year'], q=3, labels=False)
-
-    # Calculate document lengths and assign them to 3 length bins
-    document_lengths = data['document'].value_counts().rename('document_length')
-    documents = documents.merge(document_lengths, left_on='document', right_index=True)
-    documents['document_length_bin'] = pd.qcut(documents['document_length'], q=3, labels=False)
-
-    # Sample test documents with stratification by year and length bins
-    test_documents = (documents.groupby(['year_bin', 'document_length_bin'], group_keys=False)
-                      .apply(lambda group: group.sample(n=5, random_state=seed) if len(group) >= 5 else group, include_groups=False))
-
-    # Extract training and test datasets from the original dataset
-    test_full = data[data['document'].isin(test_documents['document'])]
-    test = test_full[['text', 'label']]
-    train_full = data.drop(test.index)
-    train = train_full[['text', 'label']]
-
-    # Save training and test datasets
-    train.to_csv(experiment / "train.csv", index=False, header=False)
-    test.to_csv(experiment / "test.csv", index=False, header=False)
-    logger.debug(f'Prepared data; train size: {len(train)}, test size: {len(test)}')
-
 def data_from_csv(path, pattern, verbalizer, tokenizer, split_name):
     """ A function to load data from a CSV file and process it into tokenized and padded format.
 
@@ -126,7 +75,7 @@ def data_from_csv(path, pattern, verbalizer, tokenizer, split_name):
     dataset_dict.set_format(type="torch", columns=torch_columns)
     return dataset_dict, labels, id2tokenid
 
-def create_experiment_data(experiment, pattern_text, verbalizer, tokenizer):
+def create_experiment_data(experiment, pattern_text, verbalizer, tokenizer, device):
     """A function to create data for the experiment.
 
     Parameters
@@ -139,6 +88,8 @@ def create_experiment_data(experiment, pattern_text, verbalizer, tokenizer):
         A verbalizer for pattern-exploiting training.
     tokenizer : transformers.PreTrainedTokenizer
         A tokenizer instance used to tokenize the text.
+    device : torch.device
+        Device on which to perform computation.
 
     Returns
     -------
@@ -171,18 +122,14 @@ def create_experiment_data(experiment, pattern_text, verbalizer, tokenizer):
 
     # Load processed test data
     test_path = experiment / 'test.csv'
-    dataset_test, labels, id2tokenid = data_from_csv(
-        test_path, pattern, verbalizer, tokenizer, split_name='test'
-    )
+    dataset_test, labels, id2tokenid = data_from_csv(test_path, pattern, verbalizer, tokenizer, split_name='test')
 
     # Load processed train data
     train_path = experiment / "train.csv"
-    dataset_train, _, _ = data_from_csv(
-        train_path, pattern, verbalizer, tokenizer, split_name='train'
-    )
+    dataset_train, _, _ = data_from_csv(train_path, pattern, verbalizer, tokenizer, split_name='train')
 
     # Create data for the experiment
-    device = torch.device("cuda")
+    device = torch.device(device)
     data = {}
     data['labels'] = labels
     data['id2tokenid'] = id2tokenid
@@ -201,7 +148,7 @@ def create_experiment_data(experiment, pattern_text, verbalizer, tokenizer):
     logger.debug(f'Created data for the experiment')
     return data
 
-def prepare_experiment_files(experiment, config):
+def prepare_experiment_files(experiment, config, device):
     """A function to prepare the necessary files and data for an experiment.
 
     Parameters
@@ -210,6 +157,8 @@ def prepare_experiment_files(experiment, config):
         Path to the experiment directory where data and outputs are stored.
     config : dict
         Experiment configuration dictionary loaded from the configuration file.
+    device : torch.device
+        Device on which to perform computation.
 
     Returns
     -------
@@ -217,18 +166,14 @@ def prepare_experiment_files(experiment, config):
         Dictionary containing prepared datasets, labels, input IDs, attention masks, mask indices,
         and other data required for training and evaluation.
     """
-    prepare_data_files(
-        experiment=experiment,
-        file=config['data']['dataset']['dataset_file'],
-        mapping=config['data']['dataset']['label_mapping'],
-        seed=54
-    )
+
     tokenizer = AutoTokenizer.from_pretrained(config['adapter']['model'], additional_special_tokens=["<TEXT>"])
     data = create_experiment_data(
         experiment=experiment,
         pattern_text=config['data']['pattern'],
         verbalizer=config['data']['verbalizer'],
-        tokenizer=tokenizer
+        tokenizer=tokenizer,
+        device=device
     )
     if config['active_learning']['al_strategy'] == "diversity":
         create_embeddings(
