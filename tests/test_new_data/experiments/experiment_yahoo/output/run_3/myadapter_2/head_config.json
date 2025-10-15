@@ -1,0 +1,24 @@
+{
+  "config": {
+    "head_type": "PEThead",
+    "id2tokenid": {
+      "0": [
+        28745
+      ],
+      "1": [
+        67081
+      ]
+    },
+    "id2tokenid_values": [
+      28745,
+      67081
+    ],
+    "vocab_size": 250002
+  },
+  "hidden_size": 1024,
+  "model_class": "XLMRobertaAdapterModel",
+  "model_name": "xlm-roberta-large",
+  "model_type": "xlm-roberta",
+  "name": "myadapter",
+  "version": "adapters.1.1.0"
+}
