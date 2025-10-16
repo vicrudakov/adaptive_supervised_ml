@@ -217,7 +217,7 @@ def run_experiment(path):
 
 
 if __name__ == '__main__':
+    run_experiment("experiments/experiment_agnews")
     # run_experiment("experiments/experiment_sensation")
-    # run_experiment("experiments/experiment_agnews")
-    run_experiment("experiments/experiment_yahoo")
+    # run_experiment("experiments/experiment_yahoo")
 
