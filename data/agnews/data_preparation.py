@@ -13,6 +13,10 @@ train = train[train['label'].isin([0, 3])]
 test = test.groupby('label').sample(n=209, random_state=42).reset_index()
 train = train.groupby('label').sample(n=2000, random_state=42).reset_index()
 
+# Select variables
+test = test[['text', 'label']]
+train = train[['text', 'label']]
+
 # Map labels to new values
 mapping = {
     0: "world",
