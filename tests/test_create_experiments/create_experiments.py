@@ -7,7 +7,7 @@ datasets = ["agnews", "sensation", "yahoo"]
 data_sizes = ["1000", "2000"]
 peft_methods = ["lora", "pfeiffer", "pfeifferinv"]
 al_strategies = ["baseline", "diversity", "random", "uncertainty"]
-lambdas_ewc = ["10", "50", "100", "500"]
+lambdas_ewc = [10, 50, 100, 500]
 
 run_number = 16
 for dataset in datasets:
