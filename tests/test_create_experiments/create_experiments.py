@@ -48,13 +48,13 @@ for dataset in datasets:
             "per_device_train_batch_size": 5,
         }
         for data_size in data_sizes:
-            if data_size == "1000":
-                start_dataset_fraction = 0.125
-                query_size_fraction = 0.0125
-            elif data_size == "2000":
-                start_dataset_fraction = 0.25
-                query_size_fraction = 0.025
             for al_strategy in al_strategies:
+                if data_size == "1000":
+                    start_dataset_fraction = 0.125
+                    query_size_fraction = 0.0125
+                elif data_size == "2000":
+                    start_dataset_fraction = 0.25
+                    query_size_fraction = 0.025
                 if al_strategy == "baseline":
                     query_size_fraction = 0
                     al_iteration_number = 0
@@ -88,8 +88,8 @@ for dataset in datasets:
                         f.write(yaml_string)
                     embeddings = pd.read_csv(f"embeddings/{dataset}/embeddings.csv")
                     embeddings.to_csv(f"experiments/{dataset}_{data_size}_{peft_method}_baseline/embeddings/embeddings.csv", index = False)
-                    test = pd.read_csv(f"data/{dataset}/test.csv")
-                    train = pd.read_csv(f"data/{dataset}/train.csv")
+                    test = pd.read_csv(f"data/{dataset}/test.csv", header=None)
+                    train = pd.read_csv(f"data/{dataset}/train.csv", header=None)
                     test.to_csv(f"experiments/{dataset}_{data_size}_{peft_method}_baseline/test.csv", index=False, header=False)
                     train.to_csv(f"experiments/{dataset}_{data_size}_{peft_method}_baseline/train.csv", index=False, header=False)
 
@@ -126,8 +126,8 @@ for dataset in datasets:
                             f.write(yaml_string)
                         embeddings = pd.read_csv(f"embeddings/{dataset}/embeddings.csv")
                         embeddings.to_csv(f"experiments/{dataset}_{data_size}_{peft_method}_{al_strategy}_{lambda_ewc}/embeddings/embeddings.csv", index=False)
-                        test = pd.read_csv(f"data/{dataset}/test.csv")
-                        train = pd.read_csv(f"data/{dataset}/train.csv")
+                        test = pd.read_csv(f"data/{dataset}/test.csv", header=None)
+                        train = pd.read_csv(f"data/{dataset}/train.csv", header=None)
                         test.to_csv(f"experiments/{dataset}_{data_size}_{peft_method}_{al_strategy}_{lambda_ewc}/test.csv", index=False, header=False)
                         train.to_csv(f"experiments/{dataset}_{data_size}_{peft_method}_{al_strategy}_{lambda_ewc}/train.csv", index=False, header=False)
 
