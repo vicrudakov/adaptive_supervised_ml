@@ -61,7 +61,7 @@ for dataset in datasets:
                     lambda_ewc = 0
                     active_learning_config = {
                         "al_strategy": "random",
-                        "start_dataset_fraction": start_dataset_fraction,
+                        "start_dataset_fraction": start_dataset_fraction * 2,
                         "query_size_fraction": query_size_fraction,
                         "al_iteration_number": al_iteration_number,
                         "lambda_ewc": lambda_ewc,

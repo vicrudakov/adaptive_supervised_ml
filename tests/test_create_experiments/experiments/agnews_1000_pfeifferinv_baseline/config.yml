@@ -19,7 +19,7 @@ adapter:
 
 active_learning:
   al_strategy: random
-  start_dataset_fraction: 0.125
+  start_dataset_fraction: 0.25
   query_size_fraction: 0
   al_iteration_number: 0
   lambda_ewc: 0
