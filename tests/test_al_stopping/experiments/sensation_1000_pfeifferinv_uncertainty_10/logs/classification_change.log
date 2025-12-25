@@ -1,0 +1,38 @@
+DEBUG    | __main__:run_experiment:359 - Running experiment experiments/sensation_1000_pfeifferinv_uncertainty_10
+DEBUG    | utility_functions:read_config:97 - Loaded configuration file
+DEBUG    | data_functions:create_experiment_data:148 - Created data for the experiment
+DEBUG    | data_functions:prepare_experiment_files:184 - Prepared experiment files
+DEBUG    | __main__:run_adapter_training:219 - Run: 1
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 0
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 0
+DEBUG    | __main__:classification_change:121 - Iteration number 0, waiting for 2 iterations to pass
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 1
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 1
+DEBUG    | __main__:classification_change:154 - Iteration 1, difference count = 395
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 2
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 2
+DEBUG    | __main__:classification_change:154 - Iteration 2, difference count = 374
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 3
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 3
+DEBUG    | __main__:classification_change:154 - Iteration 3, difference count = 364
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 4
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 4
+DEBUG    | __main__:classification_change:154 - Iteration 4, difference count = 342
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 5
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 5
+DEBUG    | __main__:classification_change:154 - Iteration 5, difference count = 328
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 6
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 6
+DEBUG    | __main__:classification_change:154 - Iteration 6, difference count = 323
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 7
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 7
+DEBUG    | __main__:classification_change:154 - Iteration 7, difference count = 316
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 8
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 8
+DEBUG    | __main__:classification_change:154 - Iteration 8, difference count = 311
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 9
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 9
+DEBUG    | __main__:classification_change:154 - Iteration 9, difference count = 302
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 10
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 10
+DEBUG    | __main__:classification_change:154 - Iteration 10, difference count = 288

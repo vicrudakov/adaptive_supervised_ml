@@ -1,0 +1,38 @@
+DEBUG    | __main__:run_experiment:359 - Running experiment experiments/sensation_1000_lora_random_10
+DEBUG    | utility_functions:read_config:97 - Loaded configuration file
+DEBUG    | data_functions:create_experiment_data:148 - Created data for the experiment
+DEBUG    | data_functions:prepare_experiment_files:184 - Prepared experiment files
+DEBUG    | __main__:run_adapter_training:219 - Run: 1
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 0
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 0
+DEBUG    | __main__:oracle_acc_mcs:164 - Iteration number 0, waiting for 1 iteration to pass
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 1
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 1
+DEBUG    | __main__:oracle_acc_mcs:187 - Iteration 1, accuracy = 0.58
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 2
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 2
+DEBUG    | __main__:oracle_acc_mcs:187 - Iteration 2, accuracy = 0.56
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 3
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 3
+DEBUG    | __main__:oracle_acc_mcs:187 - Iteration 3, accuracy = 0.56
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 4
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 4
+DEBUG    | __main__:oracle_acc_mcs:187 - Iteration 4, accuracy = 0.7
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 5
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 5
+DEBUG    | __main__:oracle_acc_mcs:187 - Iteration 5, accuracy = 0.76
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 6
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 6
+DEBUG    | __main__:oracle_acc_mcs:187 - Iteration 6, accuracy = 0.56
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 7
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 7
+DEBUG    | __main__:oracle_acc_mcs:187 - Iteration 7, accuracy = 0.42
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 8
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 8
+DEBUG    | __main__:oracle_acc_mcs:187 - Iteration 8, accuracy = 0.56
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 9
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 9
+DEBUG    | __main__:oracle_acc_mcs:187 - Iteration 9, accuracy = 0.6
+DEBUG    | __main__:run_adapter_training:274 - AL iteration: 10
+DEBUG    | __main__:run_adapter_training:277 - Started selecting training observations for AL iteration 10
+DEBUG    | __main__:oracle_acc_mcs:187 - Iteration 10, accuracy = 0.5
