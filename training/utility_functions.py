@@ -94,6 +94,8 @@ def read_config(path):
     with open (path / 'config.yml', 'r', encoding='utf8') as cfg:
         config = yaml.safe_load(cfg)
     logger.debug('Loaded configuration file')
+    if config['parameter_efficient_fine_tuning']['architecture'] not in ["adapter", "lora", "prefix_tuning", "unipelt"]:
+        sys.exit("Parameter-efficient fine-tuning parameters incorrectly specified in configuration file")
     if config['active_learning']['strategy'] not in ["random", "uncertainty", "diversity"]:
         sys.exit("Active learning parameters incorrectly specified in configuration file")
     if config['continual_learning']['method'] not in ["der", "sd", "sds2"]:

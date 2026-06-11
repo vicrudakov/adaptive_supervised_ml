@@ -2,12 +2,11 @@ import os
 import gc
 import torch
 import json
-import time
 from pathlib import Path
 import pandas as pd
 from loguru import logger
 from transformers import TrainingArguments
-from adapters import AutoAdapterModel, LoRAConfig, SeqBnConfig, SeqBnInvConfig
+from adapters import AutoAdapterModel, SeqBnConfig, LoRAConfig, PrefixTuningConfig, UniPELTConfig
 import numpy as np
 from sklearn.metrics import classification_report
 from tqdm import tqdm
@@ -99,13 +98,20 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
 
         # Set PEFT module configuration
         arch = config['parameter_efficient_fine_tuning']['architecture']
-        if arch == "pfeiffer":
+        if arch == "adapter":
             config_peft_module = SeqBnConfig(reduction_factor=config['parameter_efficient_fine_tuning']['c_rate'])
-        if arch == "pfeifferinv":
-            config_peft_module = SeqBnInvConfig(reduction_factor=config['parameter_efficient_fine_tuning']['c_rate'])
         if arch == "lora":
             config_peft_module = LoRAConfig(r=config['parameter_efficient_fine_tuning']['r'],
                                             alpha=config['parameter_efficient_fine_tuning']['alpha'])
+        if arch == "prefix_tuning":
+            config_peft_module = PrefixTuningConfig(prefix_length=config['parameter_efficient_fine_tuning']['prefix_len'])
+        if arch == "unipelt":
+            config_peft_module = UniPELTConfig(
+                PrefixTuningConfig(prefix_length=int(config['parameter_efficient_fine_tuning']['prefix_len'] / 3), use_gating=True),
+                SeqBnConfig(reduction_factor=config['parameter_efficient_fine_tuning']['c_rate'], use_gating=True),
+                LoRAConfig(r=config['parameter_efficient_fine_tuning']['r'],
+                           alpha=config['parameter_efficient_fine_tuning']['alpha'], use_gating=True)
+            )
 
         # Set model configuration
         model = AutoAdapterModel.from_pretrained(config['training']['model'])
