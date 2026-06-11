@@ -155,6 +155,10 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
             args=training_args
         )
 
+        # Initialize events for timing
+        start_event = torch.cuda.Event(enable_timing=True)
+        end_event = torch.cuda.Event(enable_timing=True)
+
         # Run continual active learning or baseline training
         for al_iter in range(al_iterations + 1):
             os.makedirs(output_dir / f"{peft_module_name}_{al_iter}", exist_ok=True)
@@ -162,6 +166,7 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
 
             # Select observations for training
             logger.debug(f'Started selecting training observations for AL iteration {al_iter}')
+            start_event.record()
             if al_iter == 0:
                 current_train_rows, current_train_dataset, available_train_rows = select_obs(
                     strategy="random",
@@ -179,6 +184,9 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
                     **selection_kwargs
                 )
             trainer.train_dataset = current_train_dataset
+            end_event.record()
+            torch.cuda.synchronize()
+            time_selection = start_event.elapsed_time(end_event)
 
             # Update replay buffer
             logger.debug(f'Started updating replay buffer for AL iteration {al_iter}')
@@ -186,17 +194,28 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
 
             # Run PEFT module training for current iteration
             logger.debug(f'Started training for AL iteration {al_iter}, current train size: {len(current_train_rows)}')
-            training_starttime = time.time()
+            start_event.record()
             trainer.train()
-            training_endtime = time.time()
             if arch in ("lora"):
                 model.merge_adapter(peft_module_name)
+            end_event.record()
+            torch.cuda.synchronize()
+            time_training = start_event.elapsed_time(end_event)
 
             # Evaluate PEFT module
             logger.debug(f'Started evaluation for AL iteration {al_iter}')
+            start_event.record()
             evaluate_model(model, data, output_dir / f"{peft_module_name}_{al_iter}")
-            evaluate_endtime = time.time()
-            times = {"train": training_endtime - training_starttime, "test": evaluate_endtime - training_endtime}
+            end_event.record()
+            torch.cuda.synchronize()
+            time_test = start_event.elapsed_time(end_event)
+
+            # Save times (in milliseconds)
+            times = {
+                "time_selection": time_selection,
+                "time_training": time_training,
+                "time_test": time_test
+            }
             with open(output_dir / f"{peft_module_name}_{al_iter}" / "time.json", "w") as fp:
                 json.dump(times, fp)
 
