@@ -7,18 +7,20 @@ from pathlib import Path
 import pandas as pd
 from loguru import logger
 from transformers import TrainingArguments
-from adapters import AutoAdapterModel, LoRAConfig, IA3Config, SeqBnConfig, SeqBnInvConfig
+from adapters import AutoAdapterModel, LoRAConfig, SeqBnConfig, SeqBnInvConfig
 import numpy as np
 from sklearn.metrics import classification_report
 from tqdm import tqdm
 import warnings
 from al_functions import select_obs
 from data_functions import prepare_experiment_files
-from peft_functions import EWCAdapterTrainer
+from cl_functions import ReplayAdapterTrainer
 from pet_functions import PEThead
 from utility_functions import read_config
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 def evaluate_model(model, data, output_dir):
     """A function to evaluate a trained model on the test dataset, compute performance metrics, and save evaluation
@@ -55,8 +57,9 @@ def evaluate_model(model, data, output_dir):
     # Make forward pass and get predictions for all observations
     for i in tqdm(range(len(data['input_ids_test'])), desc='Predicting labels for test data'):
         with torch.no_grad():
-            model_args = {key.replace('_test', ''): data[key][i] for key in data.keys() if key in ['input_ids_test', 'attention_mask_test'] or 'mask_indices_test' in key}
-            res = model(**model_args)[0]
+            inputs = {key.replace('_test', ''): data[key][i] for key in data.keys()
+                      if key in ['input_ids_test', 'attention_mask_test'] or 'mask_indices_test' in key}
+            res = model(**inputs)[0]
             preds[i] = np.argmax(res.cpu().detach().numpy(), axis = 1)[0]
             probs[i] = torch.round(torch.softmax(res.cpu().detach(), dim=1).squeeze(), decimals=3).tolist()
 
@@ -69,66 +72,51 @@ def evaluate_model(model, data, output_dir):
     predictions = pd.concat([predictions, pd.DataFrame(probs)], axis=1)
     predictions.to_csv(output_dir / "predictions.csv", header=False, index=False)
 
-def run_adapter_training(experiment, config, data, device, adapter_name="myadapter"):
-    """A function to perform run PEFT module training.
+def run_peft_module_training(experiment, config, data, device, peft_module_name="peft_module"):
+    """A function to perform PEFT module training.
 
     Parameters
     ----------
     experiment : Path
-        The path to the experiment directory where outputs, embeddings, and adapters will be saved.
+        The path to the experiment directory where outputs, embeddings, and PEFT modules will be saved.
     config : dict
         A dictionary containing configuration parameters.
     data : dict
         A dictionary containing data as produced by `prepare_experiment_files`.
     device : torch.device
         Device on which to perform computation.
-    adapter_name : str, optional
-        The name of the PEFT module to be trained and saved during the experiment. Default is "myadapter".
+    peft_module_name : str, optional
+        The name of the PEFT module to be trained and saved during the experiment. Default is "peft_module".
 
     Returns
     -------
     None. Saves PEFT module files for each iteration.
     """
 
-    for run in range(1, config['active_learning']['run_number'] + 1):
+    for run in range(1, config['training']['run_number'] + 1):
         logger.debug(f'Training run: {run}')
         logger.debug(f'Started training')
 
-        # Set adapter configuration
-        arch = config['adapter']['arch']
+        # Set PEFT module configuration
+        arch = config['parameter_efficient_fine_tuning']['architecture']
         if arch == "pfeiffer":
-            config_adapter = SeqBnConfig(reduction_factor=config['adapter']['c_rate'])
+            config_peft_module = SeqBnConfig(reduction_factor=config['parameter_efficient_fine_tuning']['c_rate'])
         if arch == "pfeifferinv":
-            config_adapter = SeqBnInvConfig(reduction_factor=config['adapter']['c_rate'])
+            config_peft_module = SeqBnInvConfig(reduction_factor=config['parameter_efficient_fine_tuning']['c_rate'])
         if arch == "lora":
-            config_adapter = LoRAConfig(r=config['adapter']['r'], alpha=config['adapter']['alpha'])
-        if arch == "ia3":
-            config_adapter = IA3Config()
+            config_peft_module = LoRAConfig(r=config['parameter_efficient_fine_tuning']['r'],
+                                            alpha=config['parameter_efficient_fine_tuning']['alpha'])
 
         # Set model configuration
-        output_dir = experiment / config['data']['output_dir'] / f"run_{run}"
-        training_args = TrainingArguments(
-            seed=int(1895 * run),
-            full_determinism=True,
-            learning_rate=config['adapter']['learning_rate'],
-            num_train_epochs=config['adapter']['num_train_epochs'],
-            logging_strategy="no",
-            eval_strategy="no",
-            save_strategy="no",
-            output_dir=output_dir,
-            overwrite_output_dir=True,
-            remove_unused_columns=False,
-            per_device_train_batch_size=config['adapter']['per_device_train_batch_size']
-        )
-        model = AutoAdapterModel.from_pretrained(config['adapter']['model'])
-        model.add_adapter(adapter_name, config=config_adapter)
+        model = AutoAdapterModel.from_pretrained(config['training']['model'])
+        model.add_adapter(peft_module_name, config=config_peft_module)
         model.register_custom_head("PEThead", PEThead)
-        model.add_custom_head(head_type="PEThead", head_name=adapter_name, id2tokenid=data['id2tokenid'])
+        model.add_custom_head(head_type="PEThead", head_name=peft_module_name, id2tokenid=data['id2tokenid'])
+        model.train_adapter(peft_module_name)
 
-        # Set training configuration
+        # Set active learning configuration
         al_iterations = config['active_learning']['al_iteration_number']
-        al_strategy = config['active_learning']['al_strategy']
-        model.train_adapter(adapter_name)
+        al_strategy = config['active_learning']['strategy']
         selection_kwargs = {}
         if al_strategy == "random":
             selection_kwargs["seed"] = 42
@@ -138,15 +126,38 @@ def run_adapter_training(experiment, config, data, device, adapter_name="myadapt
             selection_kwargs["emb_dir"] = experiment / config['data']['emb_dir']
             selection_kwargs["seed"] = 42
         available_train_rows = list(range(0, len(data['train_dataset']["train"])))
-        trainer = EWCAdapterTrainer(
+
+        # Set trainer configuration
+        output_dir = experiment / config['data']['output_dir'] / f"run_{run}"
+        training_args = TrainingArguments(
+            seed=int(1895 * run),
+            full_determinism=True,
+            learning_rate=config['training']['learning_rate'],
+            num_train_epochs=config['training']['num_train_epochs'],
+            logging_strategy="no",
+            eval_strategy="no",
+            save_strategy="no",
+            output_dir=output_dir,
+            overwrite_output_dir=True,
+            remove_unused_columns=False,
+            per_device_train_batch_size=config['training']['per_device_train_batch_size']
+        )
+        trainer = ReplayAdapterTrainer(
+            method=config['continual_learning']['method'],
+            alpha=config['continual_learning']['alpha'],
+            beta=config['continual_learning']['beta'],
+            replay_size=config['continual_learning']['replay_size'],
+            kernel_width=config['continual_learning']['kernel_width'],
+            l=config['continual_learning']['l'],
+            c=config['continual_learning']['c'],
+            seed=int(1895 * run),
             model=model,
-            lambda_ewc=config['active_learning']['lambda_ewc'],
             args=training_args
         )
 
         # Run continual active learning or baseline training
         for al_iter in range(al_iterations + 1):
-            os.makedirs(output_dir / f"{adapter_name}_{al_iter}", exist_ok=True)
+            os.makedirs(output_dir / f"{peft_module_name}_{al_iter}", exist_ok=True)
             logger.debug(f"AL iteration: {al_iter}")
 
             # Select observations for training
@@ -169,28 +180,30 @@ def run_adapter_training(experiment, config, data, device, adapter_name="myadapt
                 )
             trainer.train_dataset = current_train_dataset
 
+            # Update replay buffer
+            logger.debug(f'Started updating replay buffer for AL iteration {al_iter}')
+            trainer.update_buffer(model, current_train_dataset, device)
+
             # Run PEFT module training for current iteration
             logger.debug(f'Started training for AL iteration {al_iter}, current train size: {len(current_train_rows)}')
             training_starttime = time.time()
             trainer.train()
             training_endtime = time.time()
-            if arch in ("ia3", "lora"):
-                model.merge_adapter(adapter_name)
-            logger.debug(f'Started computing Fisher information matrix for AL iteration {al_iter}')
-            trainer.save_fisher(model, current_train_dataset, device)
+            if arch in ("lora"):
+                model.merge_adapter(peft_module_name)
 
             # Evaluate PEFT module
             logger.debug(f'Started evaluation for AL iteration {al_iter}')
-            evaluate_model(model, data, output_dir / f"{adapter_name}_{al_iter}")
+            evaluate_model(model, data, output_dir / f"{peft_module_name}_{al_iter}")
             evaluate_endtime = time.time()
             times = {"train": training_endtime - training_starttime, "test": evaluate_endtime - training_endtime}
-            with open(output_dir / f"{adapter_name}_{al_iter}" / "time.json", "w") as fp:
+            with open(output_dir / f"{peft_module_name}_{al_iter}" / "time.json", "w") as fp:
                 json.dump(times, fp)
 
             gc.collect()
 
             # Save PEFT module files
-            model.save_adapter(output_dir / f"{adapter_name}_{al_iter}", adapter_name)
+            model.save_adapter(output_dir / f"{peft_module_name}_{al_iter}", peft_module_name)
 
             torch.cuda.empty_cache()
 
@@ -212,249 +225,8 @@ def run_experiment(path):
     logger.debug(f'Running experiment {path}')
     config = read_config(path)
     data = prepare_experiment_files(path, config, device='cuda')
-    run_adapter_training(path, config, data, device='cuda')
+    run_peft_module_training(path, config, data, device='cuda')
 
 
 if __name__ == '__main__':
-    ### AG News 1000
-    run_experiment("experiments/agnews_1000_lora_baseline")
-    run_experiment("experiments/agnews_1000_lora_diversity_10")
-    run_experiment("experiments/agnews_1000_lora_diversity_50")
-    run_experiment("experiments/agnews_1000_lora_diversity_100")
-    run_experiment("experiments/agnews_1000_lora_diversity_500")
-    run_experiment("experiments/agnews_1000_lora_random_10")
-    run_experiment("experiments/agnews_1000_lora_random_50")
-    run_experiment("experiments/agnews_1000_lora_random_100")
-    run_experiment("experiments/agnews_1000_lora_random_500")
-    run_experiment("experiments/agnews_1000_lora_uncertainty_10")
-    run_experiment("experiments/agnews_1000_lora_uncertainty_50")
-    run_experiment("experiments/agnews_1000_lora_uncertainty_100")
-    run_experiment("experiments/agnews_1000_lora_uncertainty_500")
-    run_experiment("experiments/agnews_1000_pfeiffer_baseline")
-    run_experiment("experiments/agnews_1000_pfeiffer_diversity_10")
-    run_experiment("experiments/agnews_1000_pfeiffer_diversity_50")
-    run_experiment("experiments/agnews_1000_pfeiffer_diversity_100")
-    run_experiment("experiments/agnews_1000_pfeiffer_diversity_500")
-    run_experiment("experiments/agnews_1000_pfeiffer_random_10")
-    run_experiment("experiments/agnews_1000_pfeiffer_random_50")
-    run_experiment("experiments/agnews_1000_pfeiffer_random_100")
-    run_experiment("experiments/agnews_1000_pfeiffer_random_500")
-    run_experiment("experiments/agnews_1000_pfeiffer_uncertainty_10")
-    run_experiment("experiments/agnews_1000_pfeiffer_uncertainty_50")
-    run_experiment("experiments/agnews_1000_pfeiffer_uncertainty_100")
-    run_experiment("experiments/agnews_1000_pfeiffer_uncertainty_500")
-    run_experiment("experiments/agnews_1000_pfeifferinv_baseline")
-    run_experiment("experiments/agnews_1000_pfeifferinv_diversity_10")
-    run_experiment("experiments/agnews_1000_pfeifferinv_diversity_50")
-    run_experiment("experiments/agnews_1000_pfeifferinv_diversity_100")
-    run_experiment("experiments/agnews_1000_pfeifferinv_diversity_500")
-    run_experiment("experiments/agnews_1000_pfeifferinv_random_10")
-    run_experiment("experiments/agnews_1000_pfeifferinv_random_50")
-    run_experiment("experiments/agnews_1000_pfeifferinv_random_100")
-    run_experiment("experiments/agnews_1000_pfeifferinv_random_500")
-    run_experiment("experiments/agnews_1000_pfeifferinv_uncertainty_10")
-    run_experiment("experiments/agnews_1000_pfeifferinv_uncertainty_50")
-    run_experiment("experiments/agnews_1000_pfeifferinv_uncertainty_100")
-    run_experiment("experiments/agnews_1000_pfeifferinv_uncertainty_500")
-    ### AG News 2000
-    run_experiment("experiments/agnews_2000_lora_baseline")
-    run_experiment("experiments/agnews_2000_lora_diversity_10")
-    run_experiment("experiments/agnews_2000_lora_diversity_50")
-    run_experiment("experiments/agnews_2000_lora_diversity_100")
-    run_experiment("experiments/agnews_2000_lora_diversity_500")
-    run_experiment("experiments/agnews_2000_lora_random_10")
-    run_experiment("experiments/agnews_2000_lora_random_50")
-    run_experiment("experiments/agnews_2000_lora_random_100")
-    run_experiment("experiments/agnews_2000_lora_random_500")
-    run_experiment("experiments/agnews_2000_lora_uncertainty_10")
-    run_experiment("experiments/agnews_2000_lora_uncertainty_50")
-    run_experiment("experiments/agnews_2000_lora_uncertainty_100")
-    run_experiment("experiments/agnews_2000_lora_uncertainty_500")
-    run_experiment("experiments/agnews_2000_pfeiffer_baseline")
-    run_experiment("experiments/agnews_2000_pfeiffer_diversity_10")
-    run_experiment("experiments/agnews_2000_pfeiffer_diversity_50")
-    run_experiment("experiments/agnews_2000_pfeiffer_diversity_100")
-    run_experiment("experiments/agnews_2000_pfeiffer_diversity_500")
-    run_experiment("experiments/agnews_2000_pfeiffer_random_10")
-    run_experiment("experiments/agnews_2000_pfeiffer_random_50")
-    run_experiment("experiments/agnews_2000_pfeiffer_random_100")
-    run_experiment("experiments/agnews_2000_pfeiffer_random_500")
-    run_experiment("experiments/agnews_2000_pfeiffer_uncertainty_10")
-    run_experiment("experiments/agnews_2000_pfeiffer_uncertainty_50")
-    run_experiment("experiments/agnews_2000_pfeiffer_uncertainty_100")
-    run_experiment("experiments/agnews_2000_pfeiffer_uncertainty_500")
-    run_experiment("experiments/agnews_2000_pfeifferinv_baseline")
-    run_experiment("experiments/agnews_2000_pfeifferinv_diversity_10")
-    run_experiment("experiments/agnews_2000_pfeifferinv_diversity_50")
-    run_experiment("experiments/agnews_2000_pfeifferinv_diversity_100")
-    run_experiment("experiments/agnews_2000_pfeifferinv_diversity_500")
-    run_experiment("experiments/agnews_2000_pfeifferinv_random_10")
-    run_experiment("experiments/agnews_2000_pfeifferinv_random_50")
-    run_experiment("experiments/agnews_2000_pfeifferinv_random_100")
-    run_experiment("experiments/agnews_2000_pfeifferinv_random_500")
-    run_experiment("experiments/agnews_2000_pfeifferinv_uncertainty_10")
-    run_experiment("experiments/agnews_2000_pfeifferinv_uncertainty_50")
-    run_experiment("experiments/agnews_2000_pfeifferinv_uncertainty_100")
-    run_experiment("experiments/agnews_2000_pfeifferinv_uncertainty_500")
-    
-    ### Sensation 1000
-    run_experiment("experiments/sensation_1000_lora_baseline")
-    run_experiment("experiments/sensation_1000_lora_diversity_10")
-    run_experiment("experiments/sensation_1000_lora_diversity_50")
-    run_experiment("experiments/sensation_1000_lora_diversity_100")
-    run_experiment("experiments/sensation_1000_lora_diversity_500")
-    run_experiment("experiments/sensation_1000_lora_random_10")
-    run_experiment("experiments/sensation_1000_lora_random_50")
-    run_experiment("experiments/sensation_1000_lora_random_100")
-    run_experiment("experiments/sensation_1000_lora_random_500")
-    run_experiment("experiments/sensation_1000_lora_uncertainty_10")
-    run_experiment("experiments/sensation_1000_lora_uncertainty_50")
-    run_experiment("experiments/sensation_1000_lora_uncertainty_100")
-    run_experiment("experiments/sensation_1000_lora_uncertainty_500")
-    run_experiment("experiments/sensation_1000_pfeiffer_baseline")
-    run_experiment("experiments/sensation_1000_pfeiffer_diversity_10")
-    run_experiment("experiments/sensation_1000_pfeiffer_diversity_50")
-    run_experiment("experiments/sensation_1000_pfeiffer_diversity_100")
-    run_experiment("experiments/sensation_1000_pfeiffer_diversity_500")
-    run_experiment("experiments/sensation_1000_pfeiffer_random_10")
-    run_experiment("experiments/sensation_1000_pfeiffer_random_50")
-    run_experiment("experiments/sensation_1000_pfeiffer_random_100")
-    run_experiment("experiments/sensation_1000_pfeiffer_random_500")
-    run_experiment("experiments/sensation_1000_pfeiffer_uncertainty_10")
-    run_experiment("experiments/sensation_1000_pfeiffer_uncertainty_50")
-    run_experiment("experiments/sensation_1000_pfeiffer_uncertainty_100")
-    run_experiment("experiments/sensation_1000_pfeiffer_uncertainty_500")
-    run_experiment("experiments/sensation_1000_pfeifferinv_baseline")
-    run_experiment("experiments/sensation_1000_pfeifferinv_diversity_10")
-    run_experiment("experiments/sensation_1000_pfeifferinv_diversity_50")
-    run_experiment("experiments/sensation_1000_pfeifferinv_diversity_100")
-    run_experiment("experiments/sensation_1000_pfeifferinv_diversity_500")
-    run_experiment("experiments/sensation_1000_pfeifferinv_random_10")
-    run_experiment("experiments/sensation_1000_pfeifferinv_random_50")
-    run_experiment("experiments/sensation_1000_pfeifferinv_random_100")
-    run_experiment("experiments/sensation_1000_pfeifferinv_random_500")
-    run_experiment("experiments/sensation_1000_pfeifferinv_uncertainty_10")
-    run_experiment("experiments/sensation_1000_pfeifferinv_uncertainty_50")
-    run_experiment("experiments/sensation_1000_pfeifferinv_uncertainty_100")
-    run_experiment("experiments/sensation_1000_pfeifferinv_uncertainty_500")
-    ### Sensation 2000
-    run_experiment("experiments/sensation_2000_lora_baseline")
-    run_experiment("experiments/sensation_2000_lora_diversity_10")
-    run_experiment("experiments/sensation_2000_lora_diversity_50")
-    run_experiment("experiments/sensation_2000_lora_diversity_100")
-    run_experiment("experiments/sensation_2000_lora_diversity_500")
-    run_experiment("experiments/sensation_2000_lora_random_10")
-    run_experiment("experiments/sensation_2000_lora_random_50")
-    run_experiment("experiments/sensation_2000_lora_random_100")
-    run_experiment("experiments/sensation_2000_lora_random_500")
-    run_experiment("experiments/sensation_2000_lora_uncertainty_10")
-    run_experiment("experiments/sensation_2000_lora_uncertainty_50")
-    run_experiment("experiments/sensation_2000_lora_uncertainty_100")
-    run_experiment("experiments/sensation_2000_lora_uncertainty_500")
-    run_experiment("experiments/sensation_2000_pfeiffer_baseline")
-    run_experiment("experiments/sensation_2000_pfeiffer_diversity_10")
-    run_experiment("experiments/sensation_2000_pfeiffer_diversity_50")
-    run_experiment("experiments/sensation_2000_pfeiffer_diversity_100")
-    run_experiment("experiments/sensation_2000_pfeiffer_diversity_500")
-    run_experiment("experiments/sensation_2000_pfeiffer_random_10")
-    run_experiment("experiments/sensation_2000_pfeiffer_random_50")
-    run_experiment("experiments/sensation_2000_pfeiffer_random_100")
-    run_experiment("experiments/sensation_2000_pfeiffer_random_500")
-    run_experiment("experiments/sensation_2000_pfeiffer_uncertainty_10")
-    run_experiment("experiments/sensation_2000_pfeiffer_uncertainty_50")
-    run_experiment("experiments/sensation_2000_pfeiffer_uncertainty_100")
-    run_experiment("experiments/sensation_2000_pfeiffer_uncertainty_500")
-    run_experiment("experiments/sensation_2000_pfeifferinv_baseline")
-    run_experiment("experiments/sensation_2000_pfeifferinv_diversity_10")
-    run_experiment("experiments/sensation_2000_pfeifferinv_diversity_50")
-    run_experiment("experiments/sensation_2000_pfeifferinv_diversity_100")
-    run_experiment("experiments/sensation_2000_pfeifferinv_diversity_500")
-    run_experiment("experiments/sensation_2000_pfeifferinv_random_10")
-    run_experiment("experiments/sensation_2000_pfeifferinv_random_50")
-    run_experiment("experiments/sensation_2000_pfeifferinv_random_100")
-    run_experiment("experiments/sensation_2000_pfeifferinv_random_500")
-    run_experiment("experiments/sensation_2000_pfeifferinv_uncertainty_10")
-    run_experiment("experiments/sensation_2000_pfeifferinv_uncertainty_50")
-    run_experiment("experiments/sensation_2000_pfeifferinv_uncertainty_100")
-    run_experiment("experiments/sensation_2000_pfeifferinv_uncertainty_500")
-    
-    ### Yahoo 1000
-    run_experiment("experiments/yahoo_1000_lora_baseline")
-    run_experiment("experiments/yahoo_1000_lora_diversity_10")
-    run_experiment("experiments/yahoo_1000_lora_diversity_50")
-    run_experiment("experiments/yahoo_1000_lora_diversity_100")
-    run_experiment("experiments/yahoo_1000_lora_diversity_500")
-    run_experiment("experiments/yahoo_1000_lora_random_10")
-    run_experiment("experiments/yahoo_1000_lora_random_50")
-    run_experiment("experiments/yahoo_1000_lora_random_100")
-    run_experiment("experiments/yahoo_1000_lora_random_500")
-    run_experiment("experiments/yahoo_1000_lora_uncertainty_10")
-    run_experiment("experiments/yahoo_1000_lora_uncertainty_50")
-    run_experiment("experiments/yahoo_1000_lora_uncertainty_100")
-    run_experiment("experiments/yahoo_1000_lora_uncertainty_500")
-    run_experiment("experiments/yahoo_1000_pfeiffer_baseline")
-    run_experiment("experiments/yahoo_1000_pfeiffer_diversity_10")
-    run_experiment("experiments/yahoo_1000_pfeiffer_diversity_50")
-    run_experiment("experiments/yahoo_1000_pfeiffer_diversity_100")
-    run_experiment("experiments/yahoo_1000_pfeiffer_diversity_500")
-    run_experiment("experiments/yahoo_1000_pfeiffer_random_10")
-    run_experiment("experiments/yahoo_1000_pfeiffer_random_50")
-    run_experiment("experiments/yahoo_1000_pfeiffer_random_100")
-    run_experiment("experiments/yahoo_1000_pfeiffer_random_500")
-    run_experiment("experiments/yahoo_1000_pfeiffer_uncertainty_10")
-    run_experiment("experiments/yahoo_1000_pfeiffer_uncertainty_50")
-    run_experiment("experiments/yahoo_1000_pfeiffer_uncertainty_100")
-    run_experiment("experiments/yahoo_1000_pfeiffer_uncertainty_500")
-    run_experiment("experiments/yahoo_1000_pfeifferinv_baseline")
-    run_experiment("experiments/yahoo_1000_pfeifferinv_diversity_10")
-    run_experiment("experiments/yahoo_1000_pfeifferinv_diversity_50")
-    run_experiment("experiments/yahoo_1000_pfeifferinv_diversity_100")
-    run_experiment("experiments/yahoo_1000_pfeifferinv_diversity_500")
-    run_experiment("experiments/yahoo_1000_pfeifferinv_random_10")
-    run_experiment("experiments/yahoo_1000_pfeifferinv_random_50")
-    run_experiment("experiments/yahoo_1000_pfeifferinv_random_100")
-    run_experiment("experiments/yahoo_1000_pfeifferinv_random_500")
-    run_experiment("experiments/yahoo_1000_pfeifferinv_uncertainty_10")
-    run_experiment("experiments/yahoo_1000_pfeifferinv_uncertainty_50")
-    run_experiment("experiments/yahoo_1000_pfeifferinv_uncertainty_100")
-    run_experiment("experiments/yahoo_1000_pfeifferinv_uncertainty_500")
-    ### Yahoo 2000
-    run_experiment("experiments/yahoo_2000_lora_baseline")
-    run_experiment("experiments/yahoo_2000_lora_diversity_10")
-    run_experiment("experiments/yahoo_2000_lora_diversity_50")
-    run_experiment("experiments/yahoo_2000_lora_diversity_100")
-    run_experiment("experiments/yahoo_2000_lora_diversity_500")
-    run_experiment("experiments/yahoo_2000_lora_random_10")
-    run_experiment("experiments/yahoo_2000_lora_random_50")
-    run_experiment("experiments/yahoo_2000_lora_random_100")
-    run_experiment("experiments/yahoo_2000_lora_random_500")
-    run_experiment("experiments/yahoo_2000_lora_uncertainty_10")
-    run_experiment("experiments/yahoo_2000_lora_uncertainty_50")
-    run_experiment("experiments/yahoo_2000_lora_uncertainty_100")
-    run_experiment("experiments/yahoo_2000_lora_uncertainty_500")
-    run_experiment("experiments/yahoo_2000_pfeiffer_baseline")
-    run_experiment("experiments/yahoo_2000_pfeiffer_diversity_10")
-    run_experiment("experiments/yahoo_2000_pfeiffer_diversity_50")
-    run_experiment("experiments/yahoo_2000_pfeiffer_diversity_100")
-    run_experiment("experiments/yahoo_2000_pfeiffer_diversity_500")
-    run_experiment("experiments/yahoo_2000_pfeiffer_random_10")
-    run_experiment("experiments/yahoo_2000_pfeiffer_random_50")
-    run_experiment("experiments/yahoo_2000_pfeiffer_random_100")
-    run_experiment("experiments/yahoo_2000_pfeiffer_random_500")
-    run_experiment("experiments/yahoo_2000_pfeiffer_uncertainty_10")
-    run_experiment("experiments/yahoo_2000_pfeiffer_uncertainty_50")
-    run_experiment("experiments/yahoo_2000_pfeiffer_uncertainty_100")
-    run_experiment("experiments/yahoo_2000_pfeiffer_uncertainty_500")
-    run_experiment("experiments/yahoo_2000_pfeifferinv_baseline")
-    run_experiment("experiments/yahoo_2000_pfeifferinv_diversity_10")
-    run_experiment("experiments/yahoo_2000_pfeifferinv_diversity_50")
-    run_experiment("experiments/yahoo_2000_pfeifferinv_diversity_100")
-    run_experiment("experiments/yahoo_2000_pfeifferinv_diversity_500")
-    run_experiment("experiments/yahoo_2000_pfeifferinv_random_10")
-    run_experiment("experiments/yahoo_2000_pfeifferinv_random_50")
-    run_experiment("experiments/yahoo_2000_pfeifferinv_random_100")
-    run_experiment("experiments/yahoo_2000_pfeifferinv_random_500")
-    run_experiment("experiments/yahoo_2000_pfeifferinv_uncertainty_10")
-    run_experiment("experiments/yahoo_2000_pfeifferinv_uncertainty_50")
-    run_experiment("experiments/yahoo_2000_pfeifferinv_uncertainty_100")
-    run_experiment("experiments/yahoo_2000_pfeifferinv_uncertainty_500")
+    pass

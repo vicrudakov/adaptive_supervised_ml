@@ -5,7 +5,6 @@ import sys
 from pathlib import Path
 import pandas as pd
 from loguru import logger
-from sklearn.metrics import f1_score, recall_score, precision_score
 from tqdm import tqdm
 from openai import OpenAI
 
@@ -75,8 +74,8 @@ def extend_attention_mask(target_list, pattern_length, extend_to=512):
         up to the specified length.
     """
     copied_list = target_list.copy()
-    copied_list.extend([1]*pattern_length)
-    copied_list.extend([0]*(extend_to-len(copied_list)))
+    copied_list.extend([1] * pattern_length)
+    copied_list.extend([0] * (extend_to - len(copied_list)))
     return copied_list
 
 def read_config(path):
@@ -95,16 +94,12 @@ def read_config(path):
     with open (path / 'config.yml', 'r', encoding='utf8') as cfg:
         config = yaml.safe_load(cfg)
     logger.debug('Loaded configuration file')
-    if 'api_key_file' not in config['data'].keys():
-        config['data']['api_key_file'] = "api_key.txt"
-    if 'output_dir' not in config['data'].keys():
-        config['data']['output_dir'] = Path("/output")
-    if 'emb_dir' not in config['data'].keys():
-        config['data']['emb_dir'] = Path("/embeddings")
-    if config['active_learning']['al_strategy'] not in ["random", "uncertainty", "diversity"]:
+    if config['active_learning']['strategy'] not in ["random", "uncertainty", "diversity"]:
         sys.exit("Active learning parameters incorrectly specified in configuration file")
-    if config['active_learning']['lambda_ewc'] < 0:
-        sys.exit("EWC parameter lambda incorrectly specified in configuration file")
+    if config['continual_learning']['method'] not in ["der", "sd", "sds2"]:
+        sys.exit("Continual learning parameters incorrectly specified in configuration file")
+    if config['continual_learning']['replay_size'] > config['continual_learning']['c']:
+        sys.exit("Continual learning parameters incorrectly specified in configuration file")
     return config
 
 def create_embeddings(data, api_key_file, emb_dir, batch_size=200, dimensionality=64):

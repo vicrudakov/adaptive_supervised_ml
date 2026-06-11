@@ -167,15 +167,15 @@ def prepare_experiment_files(experiment, config, device):
         and other data required for training and evaluation.
     """
 
-    tokenizer = AutoTokenizer.from_pretrained(config['adapter']['model'], additional_special_tokens=["<TEXT>"])
+    tokenizer = AutoTokenizer.from_pretrained(config['training']['model'], additional_special_tokens=["<TEXT>"])
     data = create_experiment_data(
         experiment=experiment,
-        pattern_text=config['data']['pattern'],
-        verbalizer=config['data']['verbalizer'],
+        pattern_text=config['pattern_exploiting_training']['pattern'],
+        verbalizer=config['pattern_exploiting_training']['verbalizer'],
         tokenizer=tokenizer,
         device=device
     )
-    if config['active_learning']['al_strategy'] == "diversity":
+    if config['active_learning']['strategy'] == "diversity":
         create_embeddings(
             data=data,
             api_key_file=config['data']['api_key_file'],
