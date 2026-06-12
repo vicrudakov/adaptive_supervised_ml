@@ -34,15 +34,15 @@ def similarity(X, metric, kernel_width):
         return torch.max(S) - S
 
 
-def get_facility_location_submodular_order(logits, model_score, metric, b, l, kernel_width):
+def get_facility_location_submodular_order(model_features, model_scores, metric, b, l, kernel_width):
     """A function to select a subset of indices by maximizing a facility location submodular objective
     combined with a modular score using a greedy algorithm.
 
     Parameters
     ----------
-    logits : torch.Tensor
-        The model logits.
-    model_score : torch.Tensor
+    model_features : torch.Tensor
+        The model features (e.g., the penultimate model layer).
+    model_scores : torch.Tensor
         An array of scores (e.g., uncertainty) for each input.
     metric : str
         The metric for similarity calculation. Must be one of 'rbf' or 'euclidean'.
@@ -62,14 +62,14 @@ def get_facility_location_submodular_order(logits, model_score, metric, b, l, ke
         The marginal gains recorded at each greedy selection step.
     """
     # Calculate similarity matrix
-    logits_sim = similarity(logits, metric, kernel_width)
+    model_features_sim = similarity(model_features, metric, kernel_width)
 
     # Manage inputs
-    if torch.is_tensor(logits_sim):
-        logits_sim = logits_sim.cpu().numpy()
-    if torch.is_tensor(model_score):
-        model_score = model_score.cpu().numpy()
-    model_score = np.ravel(model_score)
+    if torch.is_tensor(model_features_sim):
+        model_features_sim = model_features_sim.cpu().numpy()
+    if torch.is_tensor(model_scores):
+        model_scores = model_scores.cpu().numpy()
+    model_scores = np.ravel(model_scores)
 
     # Results placeholders
     sol_order = np.zeros(b, dtype=np.int32)
@@ -77,7 +77,7 @@ def get_facility_location_submodular_order(logits, model_score, metric, b, l, ke
     selected = []
 
     # Tracks the maximum similarity
-    n = logits_sim.shape[0]
+    n = model_features_sim.shape[0]
     max_sim = np.zeros(n, dtype=np.float32)
 
     # Running sum of the modular component
@@ -86,11 +86,11 @@ def get_facility_location_submodular_order(logits, model_score, metric, b, l, ke
     # Greedy selection loop
     for step in range(b):
         # Calculate marginal gain for the facility location component
-        diff = logits_sim - max_sim[:, None]
+        diff = model_features_sim - max_sim[:, None]
         gain_FL = np.maximum(diff, 0).sum(axis=0)
 
         # Calculate marginal gain for the modular (uncertainty) component in log space
-        gain_M = np.log1p(current_mod_sum + model_score) - np.log1p(current_mod_sum)
+        gain_M = np.log1p(current_mod_sum + model_scores) - np.log1p(current_mod_sum)
 
         # Total marginal gain
         total_gain = l * gain_M + gain_FL
@@ -108,10 +108,10 @@ def get_facility_location_submodular_order(logits, model_score, metric, b, l, ke
         selected.append(best_idx)
 
         # Update the maximum similarity state for the next iteration
-        max_sim = np.maximum(max_sim, logits_sim[:, best_idx])
+        max_sim = np.maximum(max_sim, model_features_sim[:, best_idx])
 
         # Update the running sum of the modular component
-        current_mod_sum += model_score[best_idx]
+        current_mod_sum += model_scores[best_idx]
 
     return sol_order, set(selected), sol_gains
 
@@ -263,6 +263,12 @@ class ReplayAdapterTrainer(AdapterTrainer):
                 # Outputs and logits calculated for pool data using current model
                 current_pool_outputs = model(**pool_batch)
                 current_pool_z = current_pool_outputs[1]
+                current_pool_penultimate = current_pool_outputs[3]
+
+                # Get the penultimate representations for just the masked tokens
+                mask_indices = pool_batch["mask_indices1"]
+                batch_size = current_pool_penultimate.shape[0]
+                current_pool_penultimate = current_pool_penultimate[range(batch_size), mask_indices, :]
 
                 # Calculate uncertainty as the modular score
                 current_pool_probs = F.softmax(current_pool_z, dim=-1)
@@ -272,7 +278,7 @@ class ReplayAdapterTrainer(AdapterTrainer):
                 selection_size = min(self.replay_size, sample_size)
 
                 # Filter the candidate pool using submodular subset selection
-                idx, _, _ = get_facility_location_submodular_order(current_pool_z, current_uncertainty_dist, 'rbf',
+                idx, _, _ = get_facility_location_submodular_order(current_pool_penultimate, current_uncertainty_dist, 'rbf',
                                                                    selection_size, self.l, self.kernel_width)
 
             model.train()

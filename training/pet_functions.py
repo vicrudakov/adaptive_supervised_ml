@@ -143,7 +143,7 @@ class PEThead(PredictionHead):
             loss = loss_fct(logits_for_loss.view(-1, len(self.config["id2tokenid"])), labels.view(-1))
 
         # Build the outputs
-        outputs = (logits_for_loss,) + outputs[1:]
+        outputs = (logits_for_loss,) + outputs[1:] + (seq_outputs,)
         if loss is not None:
             outputs = (loss,) + outputs
 
