@@ -7,13 +7,9 @@ train_1 = pd.read_parquet('train-00000-of-00002.parquet', engine='fastparquet')
 train_2 = pd.read_parquet('train-00001-of-00002.parquet', engine='fastparquet')
 train = pd.concat([train_1, train_2])
 
-# Select the classes Society & Culture and Science & Mathematics
-test = test[test['topic'].isin([0, 1])]
-train = train[train['topic'].isin([0, 1])]
-
 # Select random observations from data
-test = test.groupby('topic').sample(n=209, random_state=42).reset_index()
-train = train.groupby('topic').sample(n=2000, random_state=42).reset_index()
+test = test.groupby('topic').sample(n=100, random_state=42).reset_index()
+train = train.groupby('topic').sample(n=1000, random_state=42).reset_index()
 
 # Combine text variables into one
 test['text'] = (
@@ -33,8 +29,16 @@ train = train[['text', 'topic']]
 
 # Map labels to new values
 mapping = {
-    0: "society_culture",
-    1: "science_mathematics"
+    0: "society_culture", # Society and Culture
+    1: "science_mathematics", # Science and Mathematics
+    2: "health", # Health
+    3: "education_reference", # Education and Reference
+    4: "computers_internet", # Computers and Internet
+    5: "sports", # Sports
+    6: "business_finance", # Business and Finance
+    7: "entertainment_music", # Entertainment and Music
+    8: "family_relationships", # Family and Relationships
+    9: "politics_government" # Politics and Government
 }
 test['topic'] = [mapping[value] for value in test['topic'].tolist()]
 train['topic'] = [mapping[value] for value in train['topic'].tolist()]

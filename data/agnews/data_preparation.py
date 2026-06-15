@@ -5,13 +5,9 @@ from loguru import logger
 test = pd.read_parquet('test-00000-of-00001.parquet', engine='fastparquet')
 train = pd.read_parquet('train-00000-of-00001.parquet', engine='fastparquet')
 
-# Select the classes World and Sci/Tech
-test = test[test['label'].isin([0, 3])]
-train = train[train['label'].isin([0, 3])]
-
 # Select random observations from data
-test = test.groupby('label').sample(n=209, random_state=42).reset_index()
-train = train.groupby('label').sample(n=2000, random_state=42).reset_index()
+test = test.groupby('label').sample(n=250, random_state=42).reset_index()
+train = train.groupby('label').sample(n=2500, random_state=42).reset_index()
 
 # Select variables
 test = test[['text', 'label']]
@@ -19,8 +15,10 @@ train = train[['text', 'label']]
 
 # Map labels to new values
 mapping = {
-    0: "world",
-    3: "sci_tech"
+    0: "world", # World
+    1: "sports", # Sports
+    2: "business", # Business
+    3: "sci_tech" # Science and Technologies
 }
 test['label'] = [mapping[value] for value in test['label'].tolist()]
 train['label'] = [mapping[value] for value in train['label'].tolist()]
