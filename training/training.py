@@ -107,7 +107,7 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
             config_peft_module = PrefixTuningConfig(prefix_length=config['parameter_efficient_fine_tuning']['prefix_len'])
         if arch == "unipelt":
             config_peft_module = UniPELTConfig(
-                PrefixTuningConfig(prefix_length=int(config['parameter_efficient_fine_tuning']['prefix_len'] / 3), use_gating=True),
+                PrefixTuningConfig(prefix_length=int(config['parameter_efficient_fine_tuning']['prefix_len']), use_gating=True),
                 SeqBnConfig(reduction_factor=config['parameter_efficient_fine_tuning']['c_rate'], use_gating=True),
                 LoRAConfig(r=config['parameter_efficient_fine_tuning']['r'],
                            alpha=config['parameter_efficient_fine_tuning']['alpha'], use_gating=True)
@@ -202,8 +202,6 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
             logger.debug(f'Started training for AL iteration {al_iter}, current train size: {len(current_train_rows)}')
             start_event.record()
             trainer.train()
-            if arch in ("lora"):
-                model.merge_adapter(peft_module_name)
             end_event.record()
             torch.cuda.synchronize()
             time_training = start_event.elapsed_time(end_event)

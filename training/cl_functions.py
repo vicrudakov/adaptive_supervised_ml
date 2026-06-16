@@ -203,7 +203,7 @@ class ReplayAdapterTrainer(AdapterTrainer):
             batch_size = batch['input_ids'].size(0)
             for i in range(batch_size):
                 item_x = {k: v[i].cpu().clone() for k, v in batch.items()}
-                item_y = batch['labels'][i].cpu().clone() if 'labels' in batch else None
+                item_y = batch['labels'][i].cpu().clone()
                 item_z = z[i].cpu().clone()
                 self.buffer.append((item_x, item_y, item_z))
 
@@ -246,15 +246,10 @@ class ReplayAdapterTrainer(AdapterTrainer):
         pool_tuples = [self.buffer[i] for i in idx_pool]
 
         # Construct the batch dictionary for the sampled items and get logits
-        pool_items = []
-        for x, y, _ in pool_tuples:
-            item = x.copy()
-            if y is not None:
-                item['labels'] = y
-            pool_items.append(item)
+        pool_items = [{**x, 'labels': y} for x, y, _ in pool_tuples]
         pool_batch = self.data_collator(pool_items)
         pool_batch = {k: v.to(device) for k, v in pool_batch.items()}
-        pool_z = torch.stack([tup[2] for tup in pool_tuples]).to(device)
+        pool_z = torch.stack([z for _, _, z in pool_tuples]).to(device)
 
         # Submodular subset selection for CAL-SDS2
         if self.method == 'sds2':
