@@ -6,8 +6,8 @@ test = pd.read_parquet('test-00000-of-00001.parquet', engine='fastparquet')
 train = pd.read_parquet('train-00000-of-00001.parquet', engine='fastparquet')
 
 # Select random observations from data
-test = test.groupby('label').sample(n=250, random_state=42).reset_index()
-train = train.groupby('label').sample(n=2500, random_state=42).reset_index()
+test = test.groupby('label').sample(n=150, random_state=42).reset_index()
+train = train.groupby('label').sample(n=1500, random_state=42).reset_index()
 
 # Select variables
 test = test[['text', 'label']]

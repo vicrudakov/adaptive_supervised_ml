@@ -8,8 +8,8 @@ train_2 = pd.read_parquet('train-00001-of-00002.parquet', engine='fastparquet')
 train = pd.concat([train_1, train_2])
 
 # Select random observations from data
-test = test.groupby('topic').sample(n=100, random_state=42).reset_index()
-train = train.groupby('topic').sample(n=1000, random_state=42).reset_index()
+test = test.groupby('topic').sample(n=60, random_state=42).reset_index()
+train = train.groupby('topic').sample(n=600, random_state=42).reset_index()
 
 # Combine text variables into one
 test['text'] = (
