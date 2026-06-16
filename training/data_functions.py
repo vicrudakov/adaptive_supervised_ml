@@ -5,7 +5,7 @@ from datasets import Dataset, DatasetDict
 from loguru import logger
 from transformers import AutoTokenizer
 import numpy as np
-from utility_functions import encode_batch, insert_list, extend_attention_mask, create_embeddings
+from utility_functions import encode_batch, insert_list, extend_attention_mask
 
 def data_from_csv(path, pattern, verbalizer, tokenizer, split_name):
     """ A function to load data from a CSV file and process it into tokenized and padded format.
@@ -175,11 +175,5 @@ def prepare_experiment_files(experiment, config, device):
         tokenizer=tokenizer,
         device=device
     )
-    if config['active_learning']['strategy'] == "diversity":
-        create_embeddings(
-            data=data,
-            api_key_file=config['data']['api_key_file'],
-            emb_dir=experiment / config['data']['emb_dir']
-        )
     logger.debug(f'Prepared experiment files')
     return data

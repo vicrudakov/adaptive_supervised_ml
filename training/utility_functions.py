@@ -96,62 +96,10 @@ def read_config(path):
     logger.debug('Loaded configuration file')
     if config['parameter_efficient_fine_tuning']['architecture'] not in ["adapter", "lora", "prefix_tuning", "unipelt"]:
         sys.exit("Parameter-efficient fine-tuning parameters incorrectly specified in configuration file")
-    if config['active_learning']['strategy'] not in ["random", "uncertainty", "diversity"]:
+    if config['active_learning']['strategy'] not in ["random", "entropy", "coreset"]:
         sys.exit("Active learning parameters incorrectly specified in configuration file")
     if config['continual_learning']['method'] not in ["der", "sd", "sds2"]:
         sys.exit("Continual learning parameters incorrectly specified in configuration file")
     if config['continual_learning']['replay_size'] > config['continual_learning']['c']:
         sys.exit("Continual learning parameters incorrectly specified in configuration file")
     return config
-
-def create_embeddings(data, api_key_file, emb_dir, batch_size=200, dimensionality=64):
-    """A function to generate and save embeddings for the text in training dataset using the OpenAI API and the model
-    'text-embedding-3-large'.
-
-    Parameters
-    ----------
-    data : dict
-        A dictionary containing the data produced by `create_experiment_data`.
-    api_key_file : str or pathlib.Path
-        Path to a text file containing the OpenAI API key.
-    emb_dir : str or pathlib.Path
-        Directory where the embeddings CSV file will be saved to.
-    batch_size : int, optional
-        Number of text samples to embed per API request. Default is 200.
-    dimensionality : int, optional
-        Desired dimensionality of the returned embeddings. Default is 64.
-
-    Returns
-    -----
-    None. Saves embeddings.csv, the file containing the embeddings in rows. Columns are named `emb_0`, `emb_1`, ...,
-    `emb_{dimensionality-1}`.
-    """
-
-    # Skip computation if embeddings already exist
-    if os.path.exists(emb_dir / "embeddings.csv"):
-        logger.debug('Embeddings already created')
-        return
-
-    # Read API key and create client
-    with open(api_key_file, "r") as file:
-        api_key = file.read()
-    client = OpenAI(api_key=api_key)
-
-    # Get texts from data and create embeddings
-    df_train = data['train_dataset']["train"].to_pandas()
-    texts = df_train['text'].tolist()
-    text_batches = [texts[i:i + batch_size] for i in range(0, len(texts), batch_size)]
-    emb_list = []
-    for i in tqdm(range(0, math.ceil(len(texts) / batch_size)), desc='Creating embeddings for training data'):
-        response = client.embeddings.create(
-            model="text-embedding-3-large",
-            dimensions=dimensionality,
-            input=text_batches[i],
-            encoding_format="float"
-        )
-        emb_list = emb_list + [response.data[j].embedding for j in range(len(text_batches[i]))]
-
-    # Save the embeddings
-    emb_df = pd.DataFrame(emb_list, columns = [f"emb_{i}" for i in range(dimensionality)])
-    emb_df.to_csv(emb_dir / "embeddings.csv", index = False)
-    logger.debug('Created embeddings')

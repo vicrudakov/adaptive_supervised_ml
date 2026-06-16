@@ -77,7 +77,7 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
     Parameters
     ----------
     experiment : Path
-        The path to the experiment directory where outputs, embeddings, and PEFT modules will be saved.
+        The path to the experiment directory where outputs will be saved.
     config : dict
         A dictionary containing configuration parameters.
     data : dict
@@ -126,15 +126,14 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
         selection_kwargs = {}
         if al_strategy == "random":
             selection_kwargs["seed"] = 42
-        elif al_strategy == "uncertainty":
+        elif al_strategy == "entropy":
             selection_kwargs["model"] = model
-        elif al_strategy == "diversity":
-            selection_kwargs["emb_dir"] = experiment / config['data']['emb_dir']
-            selection_kwargs["seed"] = 42
+        elif al_strategy == "coreset":
+            selection_kwargs["model"] = model
         available_train_rows = list(range(0, len(data['train_dataset']["train"])))
 
         # Set trainer configuration
-        output_dir = experiment / config['data']['output_dir'] / f"run_{run}"
+        output_dir = experiment / config['training']['output_dir'] / f"run_{run}"
         training_args = TrainingArguments(
             seed=int(1895 * run),
             full_determinism=True,
