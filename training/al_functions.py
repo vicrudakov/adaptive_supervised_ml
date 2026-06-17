@@ -136,7 +136,7 @@ def select_obs_coreset(data, available_train_rows, n, model):
     # Rows that have already been used for training
     unavailable_train_rows = [i for i in range(len(data['input_ids_train'])) if i not in available_train_rows]
 
-    # Extract penultimate representations for all training data
+    # Extract the penultimate representations for all training data
     representations = []
     for i in tqdm(range(len(data['input_ids_train'])), desc='Extracting representations for training data'):
         with torch.no_grad():
@@ -150,7 +150,14 @@ def select_obs_coreset(data, available_train_rows, n, model):
             penultimate = penultimate[0, mask_index, :].squeeze().cpu()
             representations.append(penultimate)
 
+    # Create tensor for the penultimate representations
     representations = torch.stack(representations)
+
+    # Reduce the dimensionality of the penultimate representations using PCA
+    pca_dim = min(128, len(data['input_ids_train']))
+    representations_centered = representations - representations.mean(dim=0)
+    U, S, V = torch.pca_lowrank(representations_centered, q=pca_dim, center=False)
+    representations = torch.matmul(representations_centered, V)
 
     # Separate representations into unlabeled / available and labeled / used pools
     unlabeled_representations = representations[available_train_rows]
