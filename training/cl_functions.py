@@ -157,7 +157,6 @@ class ReplayAdapterTrainer(AdapterTrainer):
         self.c = c
 
         self.buffer = []
-        self.past_buffer_size = 0
         self.rng = np.random.default_rng(seed)
 
     def update_buffer(self, model, dataset, device):
@@ -176,9 +175,6 @@ class ReplayAdapterTrainer(AdapterTrainer):
         -------
         None.
         """
-        # The buffer length is locked before adding new elements
-        self.past_buffer_size = len(self.buffer)
-
         model.eval()
         dataloader = DataLoader(
             dataset,
@@ -231,18 +227,17 @@ class ReplayAdapterTrainer(AdapterTrainer):
         current_loss = outputs[0]
 
         # If buffer is empty (AL iteration 0), standard loss is returned
-        if self.past_buffer_size == 0:
+        if len(self.buffer) == 0:
             return (current_loss, outputs) if return_outputs else current_loss
 
         device = inputs['input_ids'].device
 
         # Size of the random sample from the replay buffer, CAL-SDS2 pulls a larger candidate pool with parameter c
         pool_size = self.c if self.method == 'sds2' else self.replay_size
-        past_buffer_size = self.past_buffer_size
-        sample_size = min(pool_size, past_buffer_size)
+        sample_size = min(pool_size, len(self.buffer))
 
         # Sample the pool from the replay buffer
-        idx_pool = self.rng.choice(past_buffer_size, sample_size, replace=False)
+        idx_pool = self.rng.choice(len(self.buffer), sample_size, replace=False)
         pool_tuples = [self.buffer[i] for i in idx_pool]
 
         # Construct the batch dictionary for the sampled items and get logits
@@ -303,7 +298,7 @@ class ReplayAdapterTrainer(AdapterTrainer):
             total_loss = current_loss + self.alpha * mse_loss + self.beta * ce_loss
         elif self.method in ['sd', 'sds2']:
             current_al_size = len(self.train_dataset)
-            previous_al_size = past_buffer_size
+            previous_al_size = len(self.buffer)
 
             new_coef = current_al_size / (current_al_size + previous_al_size)
             old_coef = 1 - new_coef

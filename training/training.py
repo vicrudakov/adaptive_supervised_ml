@@ -107,7 +107,7 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
             config_peft_module = PrefixTuningConfig(prefix_length=config['parameter_efficient_fine_tuning']['prefix_len'])
         if arch == "unipelt":
             config_peft_module = UniPELTConfig(
-                PrefixTuningConfig(prefix_length=int(config['parameter_efficient_fine_tuning']['prefix_len']), use_gating=True),
+                PrefixTuningConfig(prefix_length=config['parameter_efficient_fine_tuning']['prefix_len'], use_gating=True),
                 SeqBnConfig(reduction_factor=config['parameter_efficient_fine_tuning']['c_rate'], use_gating=True),
                 LoRAConfig(r=config['parameter_efficient_fine_tuning']['r'],
                            alpha=config['parameter_efficient_fine_tuning']['alpha'], use_gating=True)
@@ -193,10 +193,6 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
             torch.cuda.synchronize()
             time_selection = start_event.elapsed_time(end_event)
 
-            # Update replay buffer
-            logger.debug(f'Started updating replay buffer for AL iteration {al_iter}')
-            trainer.update_buffer(model, current_train_dataset, device)
-
             # Run PEFT module training for current iteration
             logger.debug(f'Started training for AL iteration {al_iter}, current train size: {len(current_train_rows)}')
             start_event.record()
@@ -204,6 +200,10 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
             end_event.record()
             torch.cuda.synchronize()
             time_training = start_event.elapsed_time(end_event)
+
+            # Update replay buffer after training
+            logger.debug(f'Started updating replay buffer for AL iteration {al_iter}')
+            trainer.update_buffer(model, current_train_dataset, device)
 
             # Evaluate PEFT module
             logger.debug(f'Started evaluation for AL iteration {al_iter}')
