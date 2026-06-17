@@ -1,12 +1,7 @@
-import math
-import os
 import yaml
 import sys
 from pathlib import Path
-import pandas as pd
 from loguru import logger
-from tqdm import tqdm
-from openai import OpenAI
 
 def encode_batch(batch, tokenizer, max_length):
     """A function to tokenize batches of text data.

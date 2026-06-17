@@ -260,12 +260,6 @@ class ReplayAdapterTrainer(AdapterTrainer):
                 batch_size = current_pool_penultimate.shape[0]
                 current_pool_penultimate = current_pool_penultimate[range(batch_size), mask_indices, :]
 
-                # Reduce the dimensionality of the penultimate representations using PCA
-                pca_dim = min(128, pool_batch["input_ids"].size(0))
-                current_pool_penultimate_centered = current_pool_penultimate - current_pool_penultimate.mean(dim=0)
-                U, S, V = torch.pca_lowrank(current_pool_penultimate_centered, q=pca_dim, center=False)
-                current_pool_penultimate = torch.matmul(current_pool_penultimate_centered, V)
-
                 # Calculate uncertainty as the modular score
                 current_pool_probs = F.softmax(current_pool_z, dim=-1)
                 current_uncertainty_dist = 1 - torch.max(current_pool_probs, dim=1)[0]

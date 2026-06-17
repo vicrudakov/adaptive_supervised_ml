@@ -153,12 +153,6 @@ def select_obs_coreset(data, available_train_rows, n, model):
     # Create tensor for the penultimate representations
     representations = torch.stack(representations)
 
-    # Reduce the dimensionality of the penultimate representations using PCA
-    pca_dim = min(128, len(data['input_ids_train']))
-    representations_centered = representations - representations.mean(dim=0)
-    U, S, V = torch.pca_lowrank(representations_centered, q=pca_dim, center=False)
-    representations = torch.matmul(representations_centered, V)
-
     # Separate representations into unlabeled / available and labeled / used pools
     unlabeled_representations = representations[available_train_rows]
     labeled_representations = representations[unavailable_train_rows]

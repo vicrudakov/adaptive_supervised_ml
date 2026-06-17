@@ -145,7 +145,10 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
             output_dir=output_dir,
             overwrite_output_dir=True,
             remove_unused_columns=False,
-            per_device_train_batch_size=config['training']['per_device_train_batch_size']
+            per_device_train_batch_size=config['training']['per_device_train_batch_size'],
+            gradient_checkpointing=True,
+            bf16=True,
+            tf32=True
         )
         trainer = ReplayAdapterTrainer(
             method=config['continual_learning']['method'],
