@@ -2,7 +2,10 @@ import random
 import torch
 import sys
 import numpy as np
+from torch.utils.data import DataLoader
 from tqdm import tqdm
+from transformers import default_data_collator
+
 
 def select_obs_random(data, available_train_rows, n, seed):
     """A function for random sampling query strategy for active learning.
@@ -43,7 +46,7 @@ def select_obs_random(data, available_train_rows, n, seed):
 
     return current_train_rows, current_train_dataset, available_train_rows
 
-def select_obs_entropy(data, available_train_rows, n, model):
+def select_obs_entropy(data, available_train_rows, n, model, batch_size):
     """A function for maximum entropy sampling query strategy for active learning.
 
     Parameters
@@ -56,6 +59,8 @@ def select_obs_entropy(data, available_train_rows, n, model):
         Number of observations to select. Must be less than or equal to the length of `available_train_rows`.
     model : transformers.AutoAdapterModel
         The model to be used to calculate predictions.
+    batch_size
+        The size of the batch for computation.
 
     Returns
     -------
@@ -73,28 +78,37 @@ def select_obs_entropy(data, available_train_rows, n, model):
     # Put model into evaluation mode
     model.eval()
 
+    # Set dataloader for unused data
+    dataloader = DataLoader(
+        data['train_dataset']["train"].select(available_train_rows),
+        batch_size=batch_size,
+        shuffle=False,
+        collate_fn=default_data_collator,
+        num_workers=1,
+        pin_memory=True
+    )
+
     # Create placeholder for entropies
-    entropies = [-np.inf] * len(data['input_ids_train'])
+    entropies = []
 
     # Predict label probabilities and calculate entropy for the available rows
-    for i in tqdm(range(len(data['input_ids_train'])), desc='Calculating entropy for training data'):
+    for batch in tqdm(dataloader, desc='Calculating entropy for training data'):
         with torch.no_grad():
-            if i in available_train_rows:
-                model_args = {key.replace('_train', ''): data[key][i] for key in data.keys()
-                              if key in ['input_ids_train', 'attention_mask_train'] or 'mask_indices_train' in key}
-                res = model(**model_args)[0]
+            batch_inputs = {k: v.to(model.device) for k, v in batch.items() if k in ['input_ids', 'attention_mask'] or 'mask_indices' in k}
+            res = model(**batch_inputs)[0]
 
-                # Get probabilities
-                probs = torch.softmax(res.cpu().detach(), dim=1).squeeze().numpy()
-                probs = np.clip(probs, a_min=1e-6, a_max=None)
+            # Get probabilities
+            probs = torch.softmax(res, dim=1).cpu().numpy()
+            probs = np.clip(probs, a_min=1e-6, a_max=None)
 
-                # Calculate entropy
-                entropy = np.sum(-probs * np.log(probs))
-                entropies[i] = entropy
+            # Calculate entropy
+            batch_entropies = np.sum(-probs * np.log(probs), axis=1)
+            entropies.extend(batch_entropies.tolist())
 
     # Select training rows as the ones with the highest entropy
     entropies_arr = np.array(entropies)
-    current_train_rows = np.argpartition(entropies_arr, -n)[-n:].tolist()
+    relative_top_n_indices = np.argpartition(entropies_arr, -n)[-n:].tolist()
+    current_train_rows = [available_train_rows[i] for i in relative_top_n_indices]
 
     # Get subset for training
     current_train_dataset = data['train_dataset']["train"].select(current_train_rows)
@@ -104,7 +118,7 @@ def select_obs_entropy(data, available_train_rows, n, model):
 
     return current_train_rows, current_train_dataset, available_train_rows
 
-def select_obs_coreset(data, available_train_rows, n, model):
+def select_obs_coreset(data, available_train_rows, n, model, batch_size):
     """A function for core-set sampling query strategy for active learning.
 
     Parameters
@@ -117,6 +131,8 @@ def select_obs_coreset(data, available_train_rows, n, model):
         Number of observations to select. Must be less than or equal to the length of `available_train_rows`.
     model : transformers.AutoAdapterModel
         The model to be used to get representations for the data.
+    batch_size
+        The size of the batch for computation.
 
     Returns
     -------
@@ -136,18 +152,29 @@ def select_obs_coreset(data, available_train_rows, n, model):
     # Rows that have already been used for training
     unavailable_train_rows = [i for i in range(len(data['input_ids_train'])) if i not in available_train_rows]
 
-    # Extract the penultimate representations for all training data
+    # Set dataloader for all data
+    dataloader = DataLoader(
+        data['train_dataset']["train"],
+        batch_size=batch_size,
+        shuffle=False,
+        collate_fn=default_data_collator,
+        num_workers=1,
+        pin_memory=True
+    )
+
+    # Create placeholder for penultimate representations
     representations = []
-    for i in tqdm(range(len(data['input_ids_train'])), desc='Extracting representations for training data'):
+
+    # Extract the penultimate representations for all training data
+    for batch in tqdm(dataloader, desc='Extracting representations for training data'):
         with torch.no_grad():
-            model_args = {key.replace('_train', ''): data[key][i] for key in data.keys() if
-                          key in ['input_ids_train', 'attention_mask_train'] or 'mask_indices_train' in key}
-            outputs = model(**model_args)
+            batch_inputs = {k: v.to(model.device) for k, v in batch.items() if k in ['input_ids', 'attention_mask'] or 'mask_indices' in k}
+            outputs = model(**batch_inputs)
             penultimate = outputs[2]
 
             # Get the penultimate representations for just the masked tokens
-            mask_index = model_args["mask_indices1"]
-            penultimate = penultimate[0, mask_index, :].squeeze().cpu()
+            mask_indices = batch_inputs["mask_indices1"]
+            penultimate = penultimate[torch.arange(penultimate.shape[0]), mask_indices, :].squeeze().cpu()
             representations.append(penultimate)
 
     # Create tensor for the penultimate representations

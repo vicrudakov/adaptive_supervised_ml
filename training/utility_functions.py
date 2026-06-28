@@ -95,6 +95,4 @@ def read_config(path):
         sys.exit("Active learning parameters incorrectly specified in configuration file")
     if config['continual_learning']['method'] not in ["der", "sd", "sds2"]:
         sys.exit("Continual learning parameters incorrectly specified in configuration file")
-    if config['continual_learning']['replay_size_fraction'] > config['continual_learning']['c_fraction']:
-        sys.exit("Continual learning parameters incorrectly specified in configuration file")
     return config

@@ -128,8 +128,10 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
             selection_kwargs["seed"] = 42
         elif al_strategy == "entropy":
             selection_kwargs["model"] = model
+            selection_kwargs["batch_size"] = config['training']['per_device_train_batch_size']
         elif al_strategy == "coreset":
             selection_kwargs["model"] = model
+            selection_kwargs["batch_size"] = config['training']['per_device_train_batch_size']
         available_train_rows = list(range(0, len(data['train_dataset']["train"])))
 
         # Set trainer configuration
