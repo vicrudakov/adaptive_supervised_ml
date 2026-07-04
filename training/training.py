@@ -103,7 +103,7 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
         if arch == "lora":
             config_peft_module = LoRAConfig(r=config['parameter_efficient_fine_tuning']['r'],
                                             alpha=config['parameter_efficient_fine_tuning']['alpha'])
-        if arch == "prefix_tuning":
+        if arch == "prefix":
             config_peft_module = PrefixTuningConfig(prefix_length=config['parameter_efficient_fine_tuning']['prefix_len'])
         if arch == "unipelt":
             config_peft_module = UniPELTConfig(

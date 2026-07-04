@@ -178,7 +178,7 @@ def select_obs_coreset(data, available_train_rows, n, model, batch_size):
             representations.append(penultimate)
 
     # Create tensor for the penultimate representations
-    representations = torch.stack(representations)
+    representations = torch.cat(representations, dim=0)
 
     # Separate representations into unlabeled / available and labeled / used pools
     unlabeled_representations = representations[available_train_rows]
