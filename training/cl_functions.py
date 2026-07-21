@@ -144,6 +144,10 @@ class ReplayAdapterTrainer(AdapterTrainer):
     rng : numpy.random.Generator
         The random number generator for buffer sampling. Is set during the initialization with integer `seed`
         parameter.
+    replay_batch : dict[str, torch.Tensor]
+        The input tensors of the replay batch.
+    replay_z : torch.Tensor
+        The tensor containing the logits or probability distributions of the replay batch.
     """
 
     def __init__(self, method, alpha, beta, replay_size, kernel_width, l, c, seed, *args, **kwargs):
@@ -158,6 +162,8 @@ class ReplayAdapterTrainer(AdapterTrainer):
 
         self.buffer = []
         self.rng = np.random.default_rng(seed)
+        self.replay_batch = None
+        self.replay_z = None
 
     def update_buffer(self, model, dataset, device):
         """A function to append the current inputs, true labels, predicted logits to the replay buffer.
@@ -203,34 +209,23 @@ class ReplayAdapterTrainer(AdapterTrainer):
                 item_z = z[i].cpu().clone()
                 self.buffer.append((item_x, item_y, item_z))
 
-    def compute_loss(self, model, inputs, num_items_in_batch, return_outputs=False):
-        """A function to compute the loss for the current batch using CAL-DER, CAL-SD, or CAL-SDS2.
+    def prepare_replay_batch(self, model, device):
+        """A function to sample and prepare the replay batch.
 
         Parameters
         ----------
         model : transformers.AutoAdapterModel
             The model being trained.
-        inputs : dict
-            The current batch of inputs.
-        num_items_in_batch : int
-            Number of items in the current batch (for AdapterTrainer compatibility).
-        return_outputs : bool, optional
-            If True, returns a tuple of `(loss, outputs)`. Default is False.
+        device : torch.device
+            The device on which to perform computation.
 
         Returns
         -------
-        torch.Tensor or tuple
-            The computed total loss, optionally with model outputs.
+        None.
         """
-        # Loss on the current batch
-        outputs = model(**inputs)
-        current_loss = outputs[0]
-
-        # If buffer is empty (AL iteration 0), standard loss is returned
+        # If buffer is empty (AL iteration 0), do nothing
         if len(self.buffer) == 0:
-            return (current_loss, outputs) if return_outputs else current_loss
-
-        device = inputs['input_ids'].device
+            return
 
         # Size of the random sample from the replay buffer, CAL-SDS2 pulls a larger candidate pool with parameter c
         pool_size = self.c if self.method == 'sds2' else self.replay_size
@@ -268,25 +263,54 @@ class ReplayAdapterTrainer(AdapterTrainer):
                 selection_size = min(self.replay_size, sample_size)
 
                 # Filter the candidate pool using submodular subset selection
-                idx, _, _ = get_facility_location_submodular_order(current_pool_penultimate, current_uncertainty_dist, 'rbf',
+                idx, _, _ = get_facility_location_submodular_order(current_pool_penultimate, current_uncertainty_dist,'rbf',
                                                                    selection_size, self.l, self.kernel_width)
 
-            model.train()
-
             # Get the subset
+            idx = idx.tolist()
             pool_batch = {k: v[idx] for k, v in pool_batch.items()}
             pool_z = pool_z[idx]
 
-        # Outputs and logits calculated for pool data using current model
-        current_pool_outputs = model(**pool_batch)
+        # Save the finalized replay batch
+        self.replay_batch = pool_batch
+        self.replay_z = pool_z
+
+    def compute_loss(self, model, inputs, num_items_in_batch, return_outputs=False):
+        """A function to compute the loss for the current batch using CAL-DER, CAL-SD, or CAL-SDS2.
+
+        Parameters
+        ----------
+        model : transformers.AutoAdapterModel
+            The model being trained.
+        inputs : dict
+            The current batch of inputs.
+        num_items_in_batch : int
+            Number of items in the current batch (for AdapterTrainer compatibility).
+        return_outputs : bool, optional
+            If True, returns a tuple of `(loss, outputs)`. Default is False.
+
+        Returns
+        -------
+        torch.Tensor or tuple
+            The computed total loss, optionally with model outputs.
+        """
+        # Loss on the current batch
+        outputs = model(**inputs)
+        current_loss = outputs[0]
+
+        # If buffer is empty (AL iteration 0), standard loss is returned
+        if len(self.buffer) == 0 or self.replay_batch is None:
+            return (current_loss, outputs) if return_outputs else current_loss
+
+        # Outputs and logits calculated for pre-prepared pool data using current model
+        current_pool_outputs = model(**self.replay_batch)
         current_pool_z = current_pool_outputs[1]
 
         # Loss computation
-
         ce_loss = current_pool_outputs[0]
 
         if self.method == 'der':
-            raw_squared_errors = F.mse_loss(current_pool_z, pool_z, reduction='none')
+            raw_squared_errors = F.mse_loss(current_pool_z, self.replay_z, reduction='none')
             mse_loss = raw_squared_errors.sum(dim=1).mean()
 
             total_loss = current_loss + self.alpha * mse_loss + self.beta * ce_loss
@@ -297,7 +321,7 @@ class ReplayAdapterTrainer(AdapterTrainer):
             new_coef = current_al_size / (current_al_size + previous_al_size)
             old_coef = 1 - new_coef
 
-            kl_loss = F.kl_div(F.log_softmax(current_pool_z, dim=-1), pool_z, reduction='batchmean')
+            kl_loss = F.kl_div(F.log_softmax(current_pool_z, dim=-1), self.replay_z, reduction='batchmean')
             replay_loss = self.alpha * kl_loss + (1 - self.alpha) * ce_loss
 
             total_loss = new_coef * current_loss + old_coef * replay_loss

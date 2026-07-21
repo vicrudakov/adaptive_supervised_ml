@@ -209,22 +209,30 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
                 current_train_dataset = data['train_dataset']["train"].select(cumulative_train_rows)
 
             trainer.train_dataset = current_train_dataset
+
             end_event.record()
             torch.cuda.synchronize()
             time_selection = start_event.elapsed_time(end_event)
 
+            start_event.record()
+
+            # Prepare the replay batch before training if training with continual learning
+            if cl_method != "none":
+                logger.debug(f'Started preparing replay batch for AL iteration {al_iter}')
+                trainer.prepare_replay_batch(model, device)
+
             # Run PEFT module training for current iteration
             logger.debug(f'Started training for AL iteration {al_iter}, current train size: {len(current_train_dataset)}')
-            start_event.record()
             trainer.train()
-            end_event.record()
-            torch.cuda.synchronize()
-            time_training = start_event.elapsed_time(end_event)
 
             # Update replay buffer after training if training with continual learning
             if cl_method != "none":
                 logger.debug(f'Started updating replay buffer for AL iteration {al_iter}')
                 trainer.update_buffer(model, current_train_dataset, device)
+
+            end_event.record()
+            torch.cuda.synchronize()
+            time_training = start_event.elapsed_time(end_event)
 
             # Evaluate PEFT module
             logger.debug(f'Started evaluation for AL iteration {al_iter}')
