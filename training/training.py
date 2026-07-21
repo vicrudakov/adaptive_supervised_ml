@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 from loguru import logger
 from transformers import TrainingArguments
-from adapters import AutoAdapterModel, SeqBnConfig, LoRAConfig, PrefixTuningConfig, UniPELTConfig
+from adapters import AutoAdapterModel, SeqBnConfig, LoRAConfig, PrefixTuningConfig, UniPELTConfig, AdapterTrainer
 import numpy as np
 from sklearn.metrics import classification_report
 from tqdm import tqdm
@@ -20,6 +20,7 @@ from utility_functions import read_config
 warnings.simplefilter(action='ignore', category=FutureWarning)
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
 
 def evaluate_model(model, data, output_dir):
     """A function to evaluate a trained model on the test dataset, compute performance metrics, and save evaluation
@@ -59,7 +60,7 @@ def evaluate_model(model, data, output_dir):
             inputs = {key.replace('_test', ''): data[key][i] for key in data.keys()
                       if key in ['input_ids_test', 'attention_mask_test'] or 'mask_indices_test' in key}
             res = model(**inputs)[0]
-            preds[i] = np.argmax(res.cpu().detach().numpy(), axis = 1)[0]
+            preds[i] = np.argmax(res.cpu().detach().numpy(), axis=1)[0]
             probs[i] = torch.round(torch.softmax(res.cpu().detach(), dim=1).squeeze(), decimals=3).tolist()
 
     # Create and save classification report
@@ -136,6 +137,7 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
 
         # Set trainer configuration
         output_dir = experiment / config['training']['output_dir'] / f"run_{run}"
+        cl_method = config['continual_learning']['method']
         training_args = TrainingArguments(
             seed=int(1895 * run),
             full_determinism=True,
@@ -152,24 +154,31 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
             bf16=True,
             tf32=True
         )
-        trainer = ReplayAdapterTrainer(
-            method=config['continual_learning']['method'],
-            alpha=config['continual_learning']['alpha'],
-            beta=config['continual_learning']['beta'],
-            replay_size=int(len(data['train_dataset']["train"]) * config['continual_learning']['replay_size_fraction']),
-            kernel_width=config['continual_learning']['kernel_width'],
-            l=config['continual_learning']['l'],
-            c=int(len(data['train_dataset']["train"]) * config['continual_learning']['c_fraction']),
-            seed=int(1895 * run),
-            model=model,
-            args=training_args
-        )
+        if cl_method == "none":
+            trainer = AdapterTrainer(
+                model=model,
+                args=training_args
+            )
+        else:
+            trainer = ReplayAdapterTrainer(
+                method=config['continual_learning']['method'],
+                alpha=config['continual_learning']['alpha'],
+                beta=config['continual_learning']['beta'],
+                replay_size=int(len(data['train_dataset']["train"]) * config['continual_learning']['replay_size_fraction']),
+                kernel_width=config['continual_learning']['kernel_width'],
+                l=config['continual_learning']['l'],
+                c=int(len(data['train_dataset']["train"]) * config['continual_learning']['c_fraction']),
+                seed=int(1895 * run),
+                model=model,
+                args=training_args
+            )
 
         # Initialize events for timing
         start_event = torch.cuda.Event(enable_timing=True)
         end_event = torch.cuda.Event(enable_timing=True)
 
-        # Run continual active learning or baseline training
+        # Run continual active learning or active learning
+        cumulative_train_rows = []
         for al_iter in range(al_iterations + 1):
             os.makedirs(output_dir / f"{peft_module_name}_{al_iter}", exist_ok=True)
             logger.debug(f"AL iteration: {al_iter}")
@@ -193,22 +202,29 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
                     n=int(len(data['train_dataset']["train"]) * config['active_learning']['query_size_fraction']),
                     **selection_kwargs
                 )
+
+            # Aggregate data if training without continual learning
+            if cl_method == "none":
+                cumulative_train_rows.extend(current_train_rows)
+                current_train_dataset = data['train_dataset']["train"].select(cumulative_train_rows)
+
             trainer.train_dataset = current_train_dataset
             end_event.record()
             torch.cuda.synchronize()
             time_selection = start_event.elapsed_time(end_event)
 
             # Run PEFT module training for current iteration
-            logger.debug(f'Started training for AL iteration {al_iter}, current train size: {len(current_train_rows)}')
+            logger.debug(f'Started training for AL iteration {al_iter}, current train size: {len(current_train_dataset)}')
             start_event.record()
             trainer.train()
             end_event.record()
             torch.cuda.synchronize()
             time_training = start_event.elapsed_time(end_event)
 
-            # Update replay buffer after training
-            logger.debug(f'Started updating replay buffer for AL iteration {al_iter}')
-            trainer.update_buffer(model, current_train_dataset, device)
+            # Update replay buffer after training if training with continual learning
+            if cl_method != "none":
+                logger.debug(f'Started updating replay buffer for AL iteration {al_iter}')
+                trainer.update_buffer(model, current_train_dataset, device)
 
             # Evaluate PEFT module
             logger.debug(f'Started evaluation for AL iteration {al_iter}')

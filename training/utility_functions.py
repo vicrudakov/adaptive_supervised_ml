@@ -46,8 +46,8 @@ def insert_list(target_list, position, new_elements, extend_with, extend_to=512)
     """
     copied_list = target_list.copy()
     for index, item in enumerate(new_elements):
-        copied_list.insert(position+index, item)
-    copied_list.extend([extend_with]*(extend_to-len(copied_list)))
+        copied_list.insert(position + index, item)
+    copied_list.extend([extend_with] * (extend_to - len(copied_list)))
     return copied_list
 
 def extend_attention_mask(target_list, pattern_length, extend_to=512):
@@ -93,6 +93,6 @@ def read_config(path):
         sys.exit("Parameter-efficient fine-tuning parameters incorrectly specified in configuration file")
     if config['active_learning']['strategy'] not in ["random", "entropy", "coreset"]:
         sys.exit("Active learning parameters incorrectly specified in configuration file")
-    if config['continual_learning']['method'] not in ["der", "sd", "sds2"]:
+    if config['continual_learning']['method'] not in ["der", "sd", "sds2", "none"]:
         sys.exit("Continual learning parameters incorrectly specified in configuration file")
     return config
