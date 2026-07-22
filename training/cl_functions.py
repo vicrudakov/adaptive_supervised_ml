@@ -148,6 +148,8 @@ class ReplayAdapterTrainer(AdapterTrainer):
         The input tensors of the replay batch.
     replay_z : torch.Tensor
         The tensor containing the logits or probability distributions of the replay batch.
+    current_step_idx : int
+        Tracks the index of the current replay mini-batch block batch during the loss computation calls within a single epoch.
     """
 
     def __init__(self, method, alpha, beta, replay_size, kernel_width, l, c, seed, *args, **kwargs):
@@ -164,6 +166,7 @@ class ReplayAdapterTrainer(AdapterTrainer):
         self.rng = np.random.default_rng(seed)
         self.replay_batch = None
         self.replay_z = None
+        self.current_step_idx = 0
 
     def update_buffer(self, model, dataset, device):
         """A function to append the current inputs, true labels, predicted logits to the replay buffer.
@@ -271,9 +274,27 @@ class ReplayAdapterTrainer(AdapterTrainer):
             pool_batch = {k: v[idx] for k, v in pool_batch.items()}
             pool_z = pool_z[idx]
 
-        # Save the finalized replay batch
-        self.replay_batch = pool_batch
-        self.replay_z = pool_z
+        # Calculate how many mini-batches per epoch there are for training data
+        dataset_size = len(self.train_dataset)
+        batch_size_train = self.args.per_device_train_batch_size
+        steps_per_epoch = int(np.ceil(dataset_size / batch_size_train))
+        steps_per_epoch = max(1, steps_per_epoch)
+
+        # Split the replay batch into the number of training mini-batches
+        keys_replay_batch = list(pool_batch.keys())
+        split_replay_batch = {k: torch.tensor_split(v, steps_per_epoch) for k, v in pool_batch.items()}
+        split_z = torch.tensor_split(pool_z, steps_per_epoch)
+
+        # Store the split blocks into the variables
+        self.replay_batch = []
+        self.replay_z = []
+        for i in range(steps_per_epoch):
+            if split_z[i].size(0) > 0:
+                self.replay_batch.append({k: split_replay_batch[k][i] for k in keys_replay_batch})
+                self.replay_z.append(split_z[i])
+
+        # Reset step index for loss computation tracking
+        self.current_step_idx = 0
 
     def compute_loss(self, model, inputs, num_items_in_batch, return_outputs=False):
         """A function to compute the loss for the current batch using CAL-DER, CAL-SD, or CAL-SDS2.
@@ -298,19 +319,27 @@ class ReplayAdapterTrainer(AdapterTrainer):
         outputs = model(**inputs)
         current_loss = outputs[0]
 
-        # If buffer is empty (AL iteration 0), standard loss is returned
+        # If buffer is empty or the replay batch was not created (AL iteration 0), standard loss is returned
         if len(self.buffer) == 0 or self.replay_batch is None:
             return (current_loss, outputs) if return_outputs else current_loss
 
-        # Outputs and logits calculated for pre-prepared pool data using current model
-        current_pool_outputs = model(**self.replay_batch)
+        # Get the replay mini-batch
+        current_idx = self.current_step_idx % len(self.replay_batch)
+        current_replay_batch = self.replay_batch[current_idx]
+        current_replay_z = self.replay_z[current_idx]
+
+        # Increment step index for the next call
+        self.current_step_idx += 1
+
+        # Outputs and logits calculated only for the current replay mini-batch
+        current_pool_outputs = model(**current_replay_batch)
         current_pool_z = current_pool_outputs[1]
 
         # Loss computation
         ce_loss = current_pool_outputs[0]
 
         if self.method == 'der':
-            raw_squared_errors = F.mse_loss(current_pool_z, self.replay_z, reduction='none')
+            raw_squared_errors = F.mse_loss(current_pool_z, current_replay_z, reduction='none')
             mse_loss = raw_squared_errors.sum(dim=1).mean()
 
             total_loss = current_loss + self.alpha * mse_loss + self.beta * ce_loss
@@ -321,7 +350,7 @@ class ReplayAdapterTrainer(AdapterTrainer):
             new_coef = current_al_size / (current_al_size + previous_al_size)
             old_coef = 1 - new_coef
 
-            kl_loss = F.kl_div(F.log_softmax(current_pool_z, dim=-1), self.replay_z, reduction='batchmean')
+            kl_loss = F.kl_div(F.log_softmax(current_pool_z, dim=-1), current_replay_z, reduction='batchmean')
             replay_loss = self.alpha * kl_loss + (1 - self.alpha) * ce_loss
 
             total_loss = new_coef * current_loss + old_coef * replay_loss
