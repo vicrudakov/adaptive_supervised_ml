@@ -239,9 +239,9 @@ for dataset in dataset_list:
             if continual_learning_method == "der":
                 continual_learning_config = {
                     "method": "der",
-                    "alpha": None,
-                    "beta": None,
-                    "replay_size_fraction": None,
+                    "alpha": 0.25,
+                    "beta": 0.75,
+                    "replay_size_fraction": 0.02,
                     "kernel_width": 0,
                     "l": 0,
                     "c_fraction": 0
@@ -249,9 +249,9 @@ for dataset in dataset_list:
             elif continual_learning_method == "sd":
                 continual_learning_config = {
                     "method": "sd",
-                    "alpha": None,
+                    "alpha": 0.5,
                     "beta": 0,
-                    "replay_size_fraction": None,
+                    "replay_size_fraction": 0.02,
                     "kernel_width": 0,
                     "l": 0,
                     "c_fraction": 0
@@ -259,12 +259,12 @@ for dataset in dataset_list:
             elif continual_learning_method == "sds2":
                 continual_learning_config = {
                     "method": "sds2",
-                    "alpha": None,
+                    "alpha": 0.25,
                     "beta": 0,
-                    "replay_size_fraction": None,
-                    "kernel_width": None,
-                    "l": None,
-                    "c_fraction": 999 * 1.5
+                    "replay_size_fraction": 0.01,
+                    "kernel_width": 1,
+                    "l": 0.1,
+                    "c_fraction": 0.01 * 1.5
                 }
             for parameter_efficient_fine_tuning_architecture in parameter_efficient_fine_tuning_architecture_list:
                 if parameter_efficient_fine_tuning_architecture == "adapter":
@@ -421,9 +421,9 @@ for dataset in dataset_list:
             if continual_learning_method == "der":
                 continual_learning_config = {
                     "method": "der",
-                    "alpha": None,
-                    "beta": None,
-                    "replay_size_fraction": None,
+                    "alpha": 0.1,
+                    "beta": 0.75,
+                    "replay_size_fraction": 0.01,
                     "kernel_width": 0,
                     "l": 0,
                     "c_fraction": 0
@@ -431,9 +431,9 @@ for dataset in dataset_list:
             elif continual_learning_method == "sd":
                 continual_learning_config = {
                     "method": "sd",
-                    "alpha": None,
+                    "alpha": 0.1,
                     "beta": 0,
-                    "replay_size_fraction": None,
+                    "replay_size_fraction": 0.01,
                     "kernel_width": 0,
                     "l": 0,
                     "c_fraction": 0
@@ -441,12 +441,12 @@ for dataset in dataset_list:
             elif continual_learning_method == "sds2":
                 continual_learning_config = {
                     "method": "sds2",
-                    "alpha": None,
+                    "alpha": 0.5,
                     "beta": 0,
-                    "replay_size_fraction": None,
-                    "kernel_width": None,
-                    "l": None,
-                    "c_fraction": 999 * 1.5
+                    "replay_size_fraction": 0.02,
+                    "kernel_width": 0.1,
+                    "l": 0.1,
+                    "c_fraction": 0.02 * 1.5
                 }
             for parameter_efficient_fine_tuning_architecture in parameter_efficient_fine_tuning_architecture_list:
                 if parameter_efficient_fine_tuning_architecture == "adapter":
@@ -607,9 +607,9 @@ for dataset in dataset_list:
             if continual_learning_method == "der":
                 continual_learning_config = {
                     "method": "der",
-                    "alpha": None,
-                    "beta": None,
-                    "replay_size_fraction": None,
+                    "alpha": 0.1,
+                    "beta": 1,
+                    "replay_size_fraction": 0.02,
                     "kernel_width": 0,
                     "l": 0,
                     "c_fraction": 0
@@ -617,9 +617,9 @@ for dataset in dataset_list:
             elif continual_learning_method == "sd":
                 continual_learning_config = {
                     "method": "sd",
-                    "alpha": None,
+                    "alpha": 0.5,
                     "beta": 0,
-                    "replay_size_fraction": None,
+                    "replay_size_fraction": 0.02,
                     "kernel_width": 0,
                     "l": 0,
                     "c_fraction": 0
@@ -627,12 +627,12 @@ for dataset in dataset_list:
             elif continual_learning_method == "sds2":
                 continual_learning_config = {
                     "method": "sds2",
-                    "alpha": None,
+                    "alpha": 0.25,
                     "beta": 0,
-                    "replay_size_fraction": None,
-                    "kernel_width": None,
-                    "l": None,
-                    "c_fraction": 999 * 1.5
+                    "replay_size_fraction": 0.02,
+                    "kernel_width": 0.1,
+                    "l": 0.1,
+                    "c_fraction": 0.02 * 1.5
                 }
             for parameter_efficient_fine_tuning_architecture in parameter_efficient_fine_tuning_architecture_list:
                 if parameter_efficient_fine_tuning_architecture == "adapter":
