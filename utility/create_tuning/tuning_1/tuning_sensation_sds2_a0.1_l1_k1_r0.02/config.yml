@@ -1,0 +1,35 @@
+pattern_exploiting_training:
+  pattern: 'Ein <mask> Satz: <TEXT>'
+  verbalizer:
+    neutral: neutraler
+    sensationalistisch: sensationalistischer
+
+parameter_efficient_fine_tuning:
+  architecture: lora
+  c_rate: 0
+  r: 8
+  alpha: 8
+  prefix_len: 0
+
+active_learning:
+  strategy: entropy
+  start_dataset_fraction: 0.01
+  query_size_fraction: 0.01
+  al_iteration_number: 9
+
+continual_learning:
+  method: sds2
+  alpha: 0.1
+  beta: 0
+  replay_size_fraction: 0.02
+  kernel_width: 1
+  l: 1
+  c_fraction: 0.03
+
+training:
+  model: xlm-roberta-large
+  learning_rate: 0.0001
+  num_train_epochs: 15
+  per_device_train_batch_size: 10
+  run_number: 1
+  output_dir: output
