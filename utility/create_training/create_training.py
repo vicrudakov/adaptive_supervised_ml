@@ -44,9 +44,9 @@ for active_learning_method in active_learning_method_list:
                         if continual_learning_method == "der":
                             continual_learning_config = {
                                 "method": "der",
-                                "alpha": None,
-                                "beta": None,
-                                "replay_size_fraction": 999 * active_learning_query_size_fraction,
+                                "alpha": 0.25,
+                                "beta": 0.75,
+                                "replay_size_fraction": 2 * active_learning_query_size_fraction,
                                 "kernel_width": 0,
                                 "l": 0,
                                 "c_fraction": 0
@@ -54,7 +54,7 @@ for active_learning_method in active_learning_method_list:
                             if parameter_efficient_fine_tuning_architecture == "adapter":
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "adapter",
-                                    "c_rate": None,
+                                    "c_rate": 16,
                                     "r": 0,
                                     "alpha": 0,
                                     "prefix_len": 0
@@ -63,8 +63,8 @@ for active_learning_method in active_learning_method_list:
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "lora",
                                     "c_rate": 0,
-                                    "r": None,
-                                    "alpha": None,
+                                    "r": 8,
+                                    "alpha": 8,
                                     "prefix_len": 0
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "prefix":
@@ -73,7 +73,7 @@ for active_learning_method in active_learning_method_list:
                                     "c_rate": 0,
                                     "r": 0,
                                     "alpha": 0,
-                                    "prefix_len": None
+                                    "prefix_len": 10
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "unipelt":
                                 parameter_efficient_fine_tuning_config = {
@@ -86,9 +86,9 @@ for active_learning_method in active_learning_method_list:
                         elif continual_learning_method == "sd":
                             continual_learning_config = {
                                 "method": "sd",
-                                "alpha": None,
+                                "alpha": 0.5,
                                 "beta": 0,
-                                "replay_size_fraction": 999 * active_learning_query_size_fraction,
+                                "replay_size_fraction": 2 * active_learning_query_size_fraction,
                                 "kernel_width": 0,
                                 "l": 0,
                                 "c_fraction": 0
@@ -96,7 +96,7 @@ for active_learning_method in active_learning_method_list:
                             if parameter_efficient_fine_tuning_architecture == "adapter":
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "adapter",
-                                    "c_rate": None,
+                                    "c_rate": 8,
                                     "r": 0,
                                     "alpha": 0,
                                     "prefix_len": 0
@@ -105,8 +105,8 @@ for active_learning_method in active_learning_method_list:
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "lora",
                                     "c_rate": 0,
-                                    "r": None,
-                                    "alpha": None,
+                                    "r": 4,
+                                    "alpha": 16,
                                     "prefix_len": 0
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "prefix":
@@ -115,7 +115,7 @@ for active_learning_method in active_learning_method_list:
                                     "c_rate": 0,
                                     "r": 0,
                                     "alpha": 0,
-                                    "prefix_len": None
+                                    "prefix_len": 20
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "unipelt":
                                 parameter_efficient_fine_tuning_config = {
@@ -128,17 +128,17 @@ for active_learning_method in active_learning_method_list:
                         elif continual_learning_method == "sds2":
                             continual_learning_config = {
                                 "method": "sds2",
-                                "alpha": None,
+                                "alpha": 0.25,
                                 "beta": 0,
-                                "replay_size_fraction": 999 * active_learning_query_size_fraction,
-                                "kernel_width": None,
-                                "l": None,
-                                "c_fraction": 999 * active_learning_query_size_fraction * 1.5
+                                "replay_size_fraction": 1 * active_learning_query_size_fraction,
+                                "kernel_width": 1,
+                                "l": 0.1,
+                                "c_fraction": 1 * active_learning_query_size_fraction * 1.5
                             }
                             if parameter_efficient_fine_tuning_architecture == "adapter":
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "adapter",
-                                    "c_rate": None,
+                                    "c_rate": 8,
                                     "r": 0,
                                     "alpha": 0,
                                     "prefix_len": 0
@@ -147,8 +147,8 @@ for active_learning_method in active_learning_method_list:
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "lora",
                                     "c_rate": 0,
-                                    "r": None,
-                                    "alpha": None,
+                                    "r": 8,
+                                    "alpha": 8,
                                     "prefix_len": 0
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "prefix":
@@ -157,7 +157,7 @@ for active_learning_method in active_learning_method_list:
                                     "c_rate": 0,
                                     "r": 0,
                                     "alpha": 0,
-                                    "prefix_len": None
+                                    "prefix_len": 20
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "unipelt":
                                 parameter_efficient_fine_tuning_config = {
@@ -214,9 +214,9 @@ for active_learning_method in active_learning_method_list:
                         if continual_learning_method == "der":
                             continual_learning_config = {
                                 "method": "der",
-                                "alpha": None,
-                                "beta": None,
-                                "replay_size_fraction": 999 * active_learning_query_size_fraction,
+                                "alpha": 0.1,
+                                "beta": 0.75,
+                                "replay_size_fraction": 1 * active_learning_query_size_fraction,
                                 "kernel_width": 0,
                                 "l": 0,
                                 "c_fraction": 0
@@ -224,7 +224,7 @@ for active_learning_method in active_learning_method_list:
                             if parameter_efficient_fine_tuning_architecture == "adapter":
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "adapter",
-                                    "c_rate": None,
+                                    "c_rate": 8,
                                     "r": 0,
                                     "alpha": 0,
                                     "prefix_len": 0
@@ -233,8 +233,8 @@ for active_learning_method in active_learning_method_list:
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "lora",
                                     "c_rate": 0,
-                                    "r": None,
-                                    "alpha": None,
+                                    "r": 8,
+                                    "alpha": 8,
                                     "prefix_len": 0
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "prefix":
@@ -243,7 +243,7 @@ for active_learning_method in active_learning_method_list:
                                     "c_rate": 0,
                                     "r": 0,
                                     "alpha": 0,
-                                    "prefix_len": None
+                                    "prefix_len": 10
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "unipelt":
                                 parameter_efficient_fine_tuning_config = {
@@ -256,9 +256,9 @@ for active_learning_method in active_learning_method_list:
                         elif continual_learning_method == "sd":
                             continual_learning_config = {
                                 "method": "sd",
-                                "alpha": None,
+                                "alpha": 0.1,
                                 "beta": 0,
-                                "replay_size_fraction": 999 * active_learning_query_size_fraction,
+                                "replay_size_fraction": 1 * active_learning_query_size_fraction,
                                 "kernel_width": 0,
                                 "l": 0,
                                 "c_fraction": 0
@@ -266,7 +266,7 @@ for active_learning_method in active_learning_method_list:
                             if parameter_efficient_fine_tuning_architecture == "adapter":
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "adapter",
-                                    "c_rate": None,
+                                    "c_rate": 8,
                                     "r": 0,
                                     "alpha": 0,
                                     "prefix_len": 0
@@ -275,8 +275,8 @@ for active_learning_method in active_learning_method_list:
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "lora",
                                     "c_rate": 0,
-                                    "r": None,
-                                    "alpha": None,
+                                    "r": 8,
+                                    "alpha": 8,
                                     "prefix_len": 0
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "prefix":
@@ -285,7 +285,7 @@ for active_learning_method in active_learning_method_list:
                                     "c_rate": 0,
                                     "r": 0,
                                     "alpha": 0,
-                                    "prefix_len": None
+                                    "prefix_len": 10
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "unipelt":
                                 parameter_efficient_fine_tuning_config = {
@@ -298,17 +298,17 @@ for active_learning_method in active_learning_method_list:
                         elif continual_learning_method == "sds2":
                             continual_learning_config = {
                                 "method": "sds2",
-                                "alpha": None,
+                                "alpha": 0.5,
                                 "beta": 0,
-                                "replay_size_fraction": 999 * active_learning_query_size_fraction,
-                                "kernel_width": None,
-                                "l": None,
-                                "c_fraction": 999 * active_learning_query_size_fraction * 1.5
+                                "replay_size_fraction": 2 * active_learning_query_size_fraction,
+                                "kernel_width": 0.1,
+                                "l": 0.1,
+                                "c_fraction": 2 * active_learning_query_size_fraction * 1.5
                             }
                             if parameter_efficient_fine_tuning_architecture == "adapter":
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "adapter",
-                                    "c_rate": None,
+                                    "c_rate": 8,
                                     "r": 0,
                                     "alpha": 0,
                                     "prefix_len": 0
@@ -317,8 +317,8 @@ for active_learning_method in active_learning_method_list:
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "lora",
                                     "c_rate": 0,
-                                    "r": None,
-                                    "alpha": None,
+                                    "r": 8,
+                                    "alpha": 16,
                                     "prefix_len": 0
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "prefix":
@@ -327,7 +327,7 @@ for active_learning_method in active_learning_method_list:
                                     "c_rate": 0,
                                     "r": 0,
                                     "alpha": 0,
-                                    "prefix_len": None
+                                    "prefix_len": 10
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "unipelt":
                                 parameter_efficient_fine_tuning_config = {
@@ -388,9 +388,9 @@ for active_learning_method in active_learning_method_list:
                         if continual_learning_method == "der":
                             continual_learning_config = {
                                 "method": "der",
-                                "alpha": None,
-                                "beta": None,
-                                "replay_size_fraction": 999 * active_learning_query_size_fraction,
+                                "alpha": 0.1,
+                                "beta": 1,
+                                "replay_size_fraction": 2 * active_learning_query_size_fraction,
                                 "kernel_width": 0,
                                 "l": 0,
                                 "c_fraction": 0
@@ -398,7 +398,7 @@ for active_learning_method in active_learning_method_list:
                             if parameter_efficient_fine_tuning_architecture == "adapter":
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "adapter",
-                                    "c_rate": None,
+                                    "c_rate": 8,
                                     "r": 0,
                                     "alpha": 0,
                                     "prefix_len": 0
@@ -407,8 +407,8 @@ for active_learning_method in active_learning_method_list:
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "lora",
                                     "c_rate": 0,
-                                    "r": None,
-                                    "alpha": None,
+                                    "r": 8,
+                                    "alpha": 8,
                                     "prefix_len": 0
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "prefix":
@@ -417,7 +417,7 @@ for active_learning_method in active_learning_method_list:
                                     "c_rate": 0,
                                     "r": 0,
                                     "alpha": 0,
-                                    "prefix_len": None
+                                    "prefix_len": 20
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "unipelt":
                                 parameter_efficient_fine_tuning_config = {
@@ -430,9 +430,9 @@ for active_learning_method in active_learning_method_list:
                         elif continual_learning_method == "sd":
                             continual_learning_config = {
                                 "method": "sd",
-                                "alpha": None,
+                                "alpha": 0.5,
                                 "beta": 0,
-                                "replay_size_fraction": 999 * active_learning_query_size_fraction,
+                                "replay_size_fraction": 2 * active_learning_query_size_fraction,
                                 "kernel_width": 0,
                                 "l": 0,
                                 "c_fraction": 0
@@ -440,7 +440,7 @@ for active_learning_method in active_learning_method_list:
                             if parameter_efficient_fine_tuning_architecture == "adapter":
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "adapter",
-                                    "c_rate": None,
+                                    "c_rate": 8,
                                     "r": 0,
                                     "alpha": 0,
                                     "prefix_len": 0
@@ -449,8 +449,8 @@ for active_learning_method in active_learning_method_list:
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "lora",
                                     "c_rate": 0,
-                                    "r": None,
-                                    "alpha": None,
+                                    "r": 8,
+                                    "alpha": 16,
                                     "prefix_len": 0
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "prefix":
@@ -459,7 +459,7 @@ for active_learning_method in active_learning_method_list:
                                     "c_rate": 0,
                                     "r": 0,
                                     "alpha": 0,
-                                    "prefix_len": None
+                                    "prefix_len": 10
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "unipelt":
                                 parameter_efficient_fine_tuning_config = {
@@ -472,17 +472,17 @@ for active_learning_method in active_learning_method_list:
                         elif continual_learning_method == "sds2":
                             continual_learning_config = {
                                 "method": "sds2",
-                                "alpha": None,
+                                "alpha": 0.25,
                                 "beta": 0,
-                                "replay_size_fraction": 999 * active_learning_query_size_fraction,
-                                "kernel_width": None,
-                                "l": None,
-                                "c_fraction": 999 * active_learning_query_size_fraction * 1.5
+                                "replay_size_fraction": 2 * active_learning_query_size_fraction,
+                                "kernel_width": 0.1,
+                                "l": 0.1,
+                                "c_fraction": 2 * active_learning_query_size_fraction * 1.5
                             }
                             if parameter_efficient_fine_tuning_architecture == "adapter":
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "adapter",
-                                    "c_rate": None,
+                                    "c_rate": 8,
                                     "r": 0,
                                     "alpha": 0,
                                     "prefix_len": 0
@@ -491,8 +491,8 @@ for active_learning_method in active_learning_method_list:
                                 parameter_efficient_fine_tuning_config = {
                                     "architecture": "lora",
                                     "c_rate": 0,
-                                    "r": None,
-                                    "alpha": None,
+                                    "r": 8,
+                                    "alpha": 8,
                                     "prefix_len": 0
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "prefix":
@@ -501,7 +501,7 @@ for active_learning_method in active_learning_method_list:
                                     "c_rate": 0,
                                     "r": 0,
                                     "alpha": 0,
-                                    "prefix_len": None
+                                    "prefix_len": 10
                                 }
                             elif parameter_efficient_fine_tuning_architecture == "unipelt":
                                 parameter_efficient_fine_tuning_config = {
