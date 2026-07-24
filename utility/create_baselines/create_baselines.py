@@ -51,7 +51,7 @@ for active_learning_method in active_learning_method_list:
                     if parameter_efficient_fine_tuning_architecture == "adapter":
                         parameter_efficient_fine_tuning_config = {
                             "architecture": "adapter",
-                            "c_rate": None,
+                            "c_rate": 8,
                             "r": 0,
                             "alpha": 0,
                             "prefix_len": 0
@@ -60,8 +60,8 @@ for active_learning_method in active_learning_method_list:
                         parameter_efficient_fine_tuning_config = {
                             "architecture": "lora",
                             "c_rate": 0,
-                            "r": None,
-                            "alpha": None,
+                            "r": 8,
+                            "alpha": 8,
                             "prefix_len": 0
                         }
                     elif parameter_efficient_fine_tuning_architecture == "prefix":
@@ -70,7 +70,7 @@ for active_learning_method in active_learning_method_list:
                             "c_rate": 0,
                             "r": 0,
                             "alpha": 0,
-                            "prefix_len": None
+                            "prefix_len": 20
                         }
                     elif parameter_efficient_fine_tuning_architecture == "unipelt":
                         parameter_efficient_fine_tuning_config = {
@@ -126,7 +126,7 @@ for active_learning_method in active_learning_method_list:
                     if parameter_efficient_fine_tuning_architecture == "adapter":
                         parameter_efficient_fine_tuning_config = {
                             "architecture": "adapter",
-                            "c_rate": None,
+                            "c_rate": 8,
                             "r": 0,
                             "alpha": 0,
                             "prefix_len": 0
@@ -135,8 +135,8 @@ for active_learning_method in active_learning_method_list:
                         parameter_efficient_fine_tuning_config = {
                             "architecture": "lora",
                             "c_rate": 0,
-                            "r": None,
-                            "alpha": None,
+                            "r": 8,
+                            "alpha": 8,
                             "prefix_len": 0
                         }
                     elif parameter_efficient_fine_tuning_architecture == "prefix":
@@ -145,7 +145,7 @@ for active_learning_method in active_learning_method_list:
                             "c_rate": 0,
                             "r": 0,
                             "alpha": 0,
-                            "prefix_len": None
+                            "prefix_len": 10
                         }
                     elif parameter_efficient_fine_tuning_architecture == "unipelt":
                         parameter_efficient_fine_tuning_config = {
@@ -205,7 +205,7 @@ for active_learning_method in active_learning_method_list:
                     if parameter_efficient_fine_tuning_architecture == "adapter":
                         parameter_efficient_fine_tuning_config = {
                             "architecture": "adapter",
-                            "c_rate": None,
+                            "c_rate": 8,
                             "r": 0,
                             "alpha": 0,
                             "prefix_len": 0
@@ -214,8 +214,8 @@ for active_learning_method in active_learning_method_list:
                         parameter_efficient_fine_tuning_config = {
                             "architecture": "lora",
                             "c_rate": 0,
-                            "r": None,
-                            "alpha": None,
+                            "r": 8,
+                            "alpha": 8,
                             "prefix_len": 0
                         }
                     elif parameter_efficient_fine_tuning_architecture == "prefix":
@@ -224,7 +224,7 @@ for active_learning_method in active_learning_method_list:
                             "c_rate": 0,
                             "r": 0,
                             "alpha": 0,
-                            "prefix_len": None
+                            "prefix_len": 10
                         }
                     elif parameter_efficient_fine_tuning_architecture == "unipelt":
                         parameter_efficient_fine_tuning_config = {
