@@ -1,0 +1,115 @@
+\begin{table}[htbp]
+\centering
+\begin{subtable}{\linewidth}
+\centering
+\caption{PEFT module -- Adapter}
+
+\begin{tabular}{c|c|cccccccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{10}{c}{\textbf{Speedup}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
+\midrule
+ & CS & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.5$\times$\\
+
+ & ME & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.7$\times$ & 1.8$\times$\\
+\midrule
+ & CS & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.5$\times$\\
+
+ & ME & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.5$\times$\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$ & 1.8$\times$\\
+\midrule
+ & CS & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$ & 1.7$\times$ & 1.8$\times$\\
+
+ & ME & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$ & 1.7$\times$ & 1.8$\times$\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.3$\times$ & 1.4$\times$ & 1.6$\times$ & 1.7$\times$ & 1.9$\times$ & 2.0$\times$ & 2.2$\times$\\
+\midrule
+ & CS & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$\\
+
+ & ME & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$\\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\vspace{1em}
+\begin{subtable}{\linewidth}
+\centering
+\caption{PEFT module -- LoRA}
+
+\begin{tabular}{c|c|cccccccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{10}{c}{\textbf{Speedup}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
+\midrule
+ & CS & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.5$\times$\\
+
+ & ME & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$ & 1.8$\times$\\
+\midrule
+ & CS & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.5$\times$\\
+
+ & ME & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$ & 1.8$\times$\\
+\midrule
+ & CS & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$ & 1.7$\times$ & 1.8$\times$\\
+
+ & ME & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$ & 1.7$\times$ & 1.8$\times$\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.7$\times$ & 1.9$\times$ & 2.0$\times$ & 2.2$\times$\\
+\midrule
+ & CS & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$\\
+
+ & ME & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$\\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\vspace{1em}
+\begin{subtable}{\linewidth}
+\centering
+\caption{PEFT module -- Prefix}
+
+\begin{tabular}{c|c|cccccccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{10}{c}{\textbf{Speedup}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
+\midrule
+ & CS & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$\\
+
+ & ME & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.2$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$ & 1.7$\times$ & 1.9$\times$\\
+\midrule
+ & CS & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$\\
+
+ & ME & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.5$\times$ & 1.6$\times$ & 1.7$\times$ & 1.8$\times$\\
+\midrule
+ & CS & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$ & 1.7$\times$ & 1.8$\times$\\
+
+ & ME & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.2$\times$ & 1.3$\times$ & 1.4$\times$ & 1.5$\times$ & 1.6$\times$ & 1.7$\times$ & 1.8$\times$\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & 1.0$\times$ & 1.0$\times$ & 1.1$\times$ & 1.3$\times$ & 1.4$\times$ & 1.6$\times$ & 1.7$\times$ & 1.9$\times$ & 2.1$\times$ & 2.2$\times$\\
+\midrule
+ & CS & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$\\
+
+ & ME & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$ & 1.0$\times$\\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\caption{Resulting speedup for AG's news dataset, split by the PEFT module used}
+\label{tab:speedup_short_agnews_10}
+\end{table}

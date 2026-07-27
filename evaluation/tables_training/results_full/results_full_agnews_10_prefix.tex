@@ -1,0 +1,70 @@
+\begin{table}[htbp]
+\centering
+
+\begin{tabular*}{\linewidth}{c|c|@{\extracolsep{\fill}}ccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{5}{c}{\textbf{F1 score}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%}\\
+\midrule
+ & CS & .884 $\pm$ {\small .004} & .884 $\pm$ {\small .007} & .888 $\pm$ {\small .010} & .890 $\pm$ {\small .012} & .889 $\pm$ {\small .009}\\
+
+ & ME & .883 $\pm$ {\small .003} & \textbf{.888 $\pm$ {\small .003}} & .885 $\pm$ {\small .010} & .890 $\pm$ {\small .005} & .890 $\pm$ {\small .003}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & .883 $\pm$ {\small .002} & .877 $\pm$ {\small .005} & .871 $\pm$ {\small .007} & .879 $\pm$ {\small .005} & .878 $\pm$ {\small .006}\\
+\midrule
+ & CS & .884 $\pm$ {\small .000} & .882 $\pm$ {\small .012} & .885 $\pm$ {\small .008} & .881 $\pm$ {\small .003} & .893 $\pm$ {\small .006}\\
+
+ & ME & .884 $\pm$ {\small .001} & .884 $\pm$ {\small .010} & \textbf{.893 $\pm$ {\small .002}} & .891 $\pm$ {\small .004} & .890 $\pm$ {\small .009}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & \textbf{.886 $\pm$ {\small .005}} & .867 $\pm$ {\small .010} & .861 $\pm$ {\small .011} & .871 $\pm$ {\small .007} & .870 $\pm$ {\small .011}\\
+\midrule
+ & CS & .884 $\pm$ {\small .000} & .883 $\pm$ {\small .014} & .885 $\pm$ {\small .011} & .889 $\pm$ {\small .003} & .885 $\pm$ {\small .005}\\
+
+ & ME & .884 $\pm$ {\small .001} & .884 $\pm$ {\small .007} & .889 $\pm$ {\small .011} & .888 $\pm$ {\small .010} & \textbf{.896 $\pm$ {\small .012}}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & \textbf{.886 $\pm$ {\small .005}} & .866 $\pm$ {\small .011} & .860 $\pm$ {\small .005} & .869 $\pm$ {\small .006} & .878 $\pm$ {\small .004}\\
+\midrule
+ & CS & .882 $\pm$ {\small .008} & .882 $\pm$ {\small .011} & .888 $\pm$ {\small .014} & .890 $\pm$ {\small .007} & .891 $\pm$ {\small .003}\\
+
+ & ME & .880 $\pm$ {\small .005} & .878 $\pm$ {\small .005} & .886 $\pm$ {\small .003} & \textbf{.894 $\pm$ {\small .005}} & .894 $\pm$ {\small .010}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & .883 $\pm$ {\small .008} & .872 $\pm$ {\small .013} & .868 $\pm$ {\small .006} & .873 $\pm$ {\small .007} & .870 $\pm$ {\small .007}\\
+\bottomrule
+\end{tabular*}
+\vspace{0.5em}
+
+\begin{tabular*}{\linewidth}{c|c|@{\extracolsep{\fill}}ccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{5}{c}{\textbf{F1 score}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
+\midrule
+ & CS & .896 $\pm$ {\small .004} & .897 $\pm$ {\small .006} & .899 $\pm$ {\small .006} & .894 $\pm$ {\small .007} & .895 $\pm$ {\small .009}\\
+
+ & ME & .893 $\pm$ {\small .008} & .897 $\pm$ {\small .003} & \textbf{.904 $\pm$ {\small .002}} & .902 $\pm$ {\small .004} & .894 $\pm$ {\small .005}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & .881 $\pm$ {\small .008} & .888 $\pm$ {\small .003} & .889 $\pm$ {\small .008} & .882 $\pm$ {\small .006} & .879 $\pm$ {\small .005}\\
+\midrule
+ & CS & .892 $\pm$ {\small .007} & .895 $\pm$ {\small .007} & .895 $\pm$ {\small .006} & .896 $\pm$ {\small .001} & .896 $\pm$ {\small .006}\\
+
+ & ME & .896 $\pm$ {\small .009} & .891 $\pm$ {\small .004} & .898 $\pm$ {\small .006} & .898 $\pm$ {\small .001} & .903 $\pm$ {\small .006}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & .878 $\pm$ {\small .007} & .880 $\pm$ {\small .002} & .889 $\pm$ {\small .010} & .878 $\pm$ {\small .004} & .870 $\pm$ {\small .002}\\
+\midrule
+ & CS & .887 $\pm$ {\small .001} & .894 $\pm$ {\small .003} & .893 $\pm$ {\small .009} & .895 $\pm$ {\small .010} & .889 $\pm$ {\small .016}\\
+
+ & ME & .894 $\pm$ {\small .003} & .897 $\pm$ {\small .009} & .895 $\pm$ {\small .004} & .896 $\pm$ {\small .003} & .894 $\pm$ {\small .005}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & .885 $\pm$ {\small .006} & .885 $\pm$ {\small .003} & .884 $\pm$ {\small .010} & .878 $\pm$ {\small .005} & .875 $\pm$ {\small .004}\\
+\midrule
+ & CS & \textbf{.900 $\pm$ {\small .008}} & \textbf{.899 $\pm$ {\small .006}} & .897 $\pm$ {\small .007} & .895 $\pm$ {\small .002} & .896 $\pm$ {\small .012}\\
+
+ & ME & .899 $\pm$ {\small .003} & .897 $\pm$ {\small .006} & .901 $\pm$ {\small .007} & \textbf{.913 $\pm$ {\small .005}} & \textbf{.910 $\pm$ {\small .004}}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & .876 $\pm$ {\small .007} & .890 $\pm$ {\small .007} & .887 $\pm$ {\small .008} & .881 $\pm$ {\small .002} & .879 $\pm$ {\small .007}\\
+\bottomrule
+\end{tabular*}
+\caption{Resulting macro F1 scores for AG's news dataset with Prefix module used}
+\label{tab:results_full_agnews_10_prefix}
+\end{table}

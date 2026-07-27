@@ -1,0 +1,70 @@
+\begin{table}[htbp]
+\centering
+
+\begin{tabular*}{\linewidth}{c|c|@{\extracolsep{\fill}}ccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{5}{c}{\textbf{F1 score}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%}\\
+\midrule
+ & CS & .456 $\pm$ {\small .071} & .600 $\pm$ {\small .050} & .664 $\pm$ {\small .017} & .685 $\pm$ {\small .022} & .696 $\pm$ {\small .007}\\
+
+ & ME & .492 $\pm$ {\small .015} & .602 $\pm$ {\small .016} & .672 $\pm$ {\small .032} & \textbf{.768 $\pm$ {\small .076}} & .786 $\pm$ {\small .075}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & .392 $\pm$ {\small .101} & .611 $\pm$ {\small .025} & .655 $\pm$ {\small .008} & .660 $\pm$ {\small .014} & .706 $\pm$ {\small .004}\\
+\midrule
+ & CS & .489 $\pm$ {\small .080} & .665 $\pm$ {\small .014} & .704 $\pm$ {\small .050} & .733 $\pm$ {\small .068} & .734 $\pm$ {\small .054}\\
+
+ & ME & \textbf{.509 $\pm$ {\small .056}} & .633 $\pm$ {\small .017} & .670 $\pm$ {\small .013} & .684 $\pm$ {\small .007} & .698 $\pm$ {\small .006}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & .501 $\pm$ {\small .028} & .713 $\pm$ {\small .013} & .716 $\pm$ {\small .034} & .719 $\pm$ {\small .037} & .740 $\pm$ {\small .045}\\
+\midrule
+ & CS & .489 $\pm$ {\small .080} & .660 $\pm$ {\small .012} & .703 $\pm$ {\small .028} & .743 $\pm$ {\small .084} & .738 $\pm$ {\small .075}\\
+
+ & ME & \textbf{.509 $\pm$ {\small .056}} & .648 $\pm$ {\small .009} & .677 $\pm$ {\small .011} & .698 $\pm$ {\small .015} & .702 $\pm$ {\small .012}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & .501 $\pm$ {\small .028} & .705 $\pm$ {\small .035} & .714 $\pm$ {\small .032} & .747 $\pm$ {\small .021} & .744 $\pm$ {\small .016}\\
+\midrule
+ & CS & .474 $\pm$ {\small .108} & .675 $\pm$ {\small .019} & .726 $\pm$ {\small .067} & .732 $\pm$ {\small .059} & .741 $\pm$ {\small .068}\\
+
+ & ME & .447 $\pm$ {\small .081} & .623 $\pm$ {\small .021} & .709 $\pm$ {\small .038} & .741 $\pm$ {\small .057} & \textbf{.808 $\pm$ {\small .053}}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & .477 $\pm$ {\small .043} & \textbf{.727 $\pm$ {\small .016}} & \textbf{.744 $\pm$ {\small .009}} & .762 $\pm$ {\small .005} & .776 $\pm$ {\small .023}\\
+\bottomrule
+\end{tabular*}
+\vspace{0.5em}
+
+\begin{tabular*}{\linewidth}{c|c|@{\extracolsep{\fill}}ccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{5}{c}{\textbf{F1 score}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
+\midrule
+ & CS & .706 $\pm$ {\small .012} & .711 $\pm$ {\small .006} & .721 $\pm$ {\small .014} & .768 $\pm$ {\small .082} & .784 $\pm$ {\small .081}\\
+
+ & ME & .803 $\pm$ {\small .096} & \textbf{.798 $\pm$ {\small .083}} & .807 $\pm$ {\small .086} & .808 $\pm$ {\small .088} & .826 $\pm$ {\small .096}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & .712 $\pm$ {\small .005} & .715 $\pm$ {\small .007} & .712 $\pm$ {\small .002} & .723 $\pm$ {\small .003} & .763 $\pm$ {\small .025}\\
+\midrule
+ & CS & .747 $\pm$ {\small .079} & .770 $\pm$ {\small .065} & .788 $\pm$ {\small .076} & .765 $\pm$ {\small .053} & .751 $\pm$ {\small .041}\\
+
+ & ME & .702 $\pm$ {\small .006} & .710 $\pm$ {\small .003} & .705 $\pm$ {\small .007} & .712 $\pm$ {\small .001} & .773 $\pm$ {\small .096}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & .769 $\pm$ {\small .015} & .773 $\pm$ {\small .039} & .766 $\pm$ {\small .012} & .777 $\pm$ {\small .036} & .832 $\pm$ {\small .012}\\
+\midrule
+ & CS & .715 $\pm$ {\small .015} & .778 $\pm$ {\small .060} & .756 $\pm$ {\small .038} & .820 $\pm$ {\small .089} & .809 $\pm$ {\small .088}\\
+
+ & ME & .735 $\pm$ {\small .043} & .768 $\pm$ {\small .104} & .769 $\pm$ {\small .086} & .774 $\pm$ {\small .098} & .779 $\pm$ {\small .095}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & .772 $\pm$ {\small .048} & .770 $\pm$ {\small .046} & .753 $\pm$ {\small .032} & .751 $\pm$ {\small .016} & .836 $\pm$ {\small .036}\\
+\midrule
+ & CS & .759 $\pm$ {\small .077} & .774 $\pm$ {\small .100} & .819 $\pm$ {\small .085} & .857 $\pm$ {\small .054} & .869 $\pm$ {\small .048}\\
+
+ & ME & \textbf{.866 $\pm$ {\small .023}} & .769 $\pm$ {\small .216} & \textbf{.888 $\pm$ {\small .007}} & \textbf{.880 $\pm$ {\small .013}} & \textbf{.891 $\pm$ {\small .021}}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & .783 $\pm$ {\small .014} & .772 $\pm$ {\small .031} & .804 $\pm$ {\small .026} & .786 $\pm$ {\small .003} & .827 $\pm$ {\small .051}\\
+\bottomrule
+\end{tabular*}
+\caption{Resulting macro F1 scores for TREC-6 dataset with Prefix module used}
+\label{tab:results_full_trec_10_prefix}
+\end{table}

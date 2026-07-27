@@ -1,0 +1,70 @@
+\begin{table}[htbp]
+\centering
+
+\begin{tabular*}{\linewidth}{c|c|@{\extracolsep{\fill}}ccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{5}{c}{\textbf{F1 score}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%}\\
+\midrule
+ & CS & .472 $\pm$ {\small .032} & .492 $\pm$ {\small .064} & .575 $\pm$ {\small .024} & .589 $\pm$ {\small .003} & .606 $\pm$ {\small .029}\\
+
+ & ME & .498 $\pm$ {\small .026} & .529 $\pm$ {\small .036} & .559 $\pm$ {\small .042} & .575 $\pm$ {\small .039} & .580 $\pm$ {\small .025}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & \textbf{.514 $\pm$ {\small .022}} & .535 $\pm$ {\small .023} & .528 $\pm$ {\small .023} & .555 $\pm$ {\small .005} & .569 $\pm$ {\small .014}\\
+\midrule
+ & CS & .472 $\pm$ {\small .032} & .507 $\pm$ {\small .049} & .543 $\pm$ {\small .035} & .548 $\pm$ {\small .032} & \textbf{.626 $\pm$ {\small .049}}\\
+
+ & ME & .498 $\pm$ {\small .026} & .533 $\pm$ {\small .043} & .557 $\pm$ {\small .040} & .565 $\pm$ {\small .051} & .591 $\pm$ {\small .053}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & \textbf{.514 $\pm$ {\small .022}} & .530 $\pm$ {\small .020} & .536 $\pm$ {\small .034} & .534 $\pm$ {\small .010} & .558 $\pm$ {\small .005}\\
+\midrule
+ & CS & .472 $\pm$ {\small .032} & .486 $\pm$ {\small .065} & .530 $\pm$ {\small .028} & .572 $\pm$ {\small .007} & .592 $\pm$ {\small .022}\\
+
+ & ME & .498 $\pm$ {\small .026} & .522 $\pm$ {\small .031} & .554 $\pm$ {\small .043} & .572 $\pm$ {\small .035} & .586 $\pm$ {\small .027}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & \textbf{.514 $\pm$ {\small .022}} & .523 $\pm$ {\small .028} & .515 $\pm$ {\small .010} & .550 $\pm$ {\small .021} & .540 $\pm$ {\small .010}\\
+\midrule
+ & CS & .481 $\pm$ {\small .059} & \textbf{.559 $\pm$ {\small .026}} & \textbf{.577 $\pm$ {\small .024}} & \textbf{.592 $\pm$ {\small .013}} & .624 $\pm$ {\small .012}\\
+
+ & ME & .488 $\pm$ {\small .047} & .537 $\pm$ {\small .060} & .565 $\pm$ {\small .036} & .587 $\pm$ {\small .052} & .590 $\pm$ {\small .037}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & .493 $\pm$ {\small .052} & .542 $\pm$ {\small .013} & .523 $\pm$ {\small .011} & .534 $\pm$ {\small .022} & .557 $\pm$ {\small .021}\\
+\bottomrule
+\end{tabular*}
+\vspace{0.5em}
+
+\begin{tabular*}{\linewidth}{c|c|@{\extracolsep{\fill}}ccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{5}{c}{\textbf{F1 score}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
+\midrule
+ & CS & .608 $\pm$ {\small .024} & .620 $\pm$ {\small .017} & .649 $\pm$ {\small .020} & .639 $\pm$ {\small .010} & \textbf{.660 $\pm$ {\small .028}}\\
+
+ & ME & .591 $\pm$ {\small .026} & .595 $\pm$ {\small .022} & .612 $\pm$ {\small .019} & .617 $\pm$ {\small .025} & .620 $\pm$ {\small .027}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & .553 $\pm$ {\small .014} & .586 $\pm$ {\small .001} & .582 $\pm$ {\small .005} & .593 $\pm$ {\small .012} & .601 $\pm$ {\small .019}\\
+\midrule
+ & CS & \textbf{.641 $\pm$ {\small .038}} & .617 $\pm$ {\small .027} & .639 $\pm$ {\small .016} & .618 $\pm$ {\small .044} & .658 $\pm$ {\small .025}\\
+
+ & ME & .603 $\pm$ {\small .024} & .610 $\pm$ {\small .019} & .620 $\pm$ {\small .015} & .632 $\pm$ {\small .025} & .636 $\pm$ {\small .020}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & .570 $\pm$ {\small .004} & .558 $\pm$ {\small .017} & .583 $\pm$ {\small .013} & .599 $\pm$ {\small .012} & .608 $\pm$ {\small .016}\\
+\midrule
+ & CS & .601 $\pm$ {\small .022} & .628 $\pm$ {\small .024} & .624 $\pm$ {\small .014} & .630 $\pm$ {\small .011} & .632 $\pm$ {\small .016}\\
+
+ & ME & .612 $\pm$ {\small .041} & .630 $\pm$ {\small .042} & .629 $\pm$ {\small .033} & .645 $\pm$ {\small .032} & .648 $\pm$ {\small .050}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & .548 $\pm$ {\small .019} & .579 $\pm$ {\small .022} & .584 $\pm$ {\small .009} & .603 $\pm$ {\small .028} & .625 $\pm$ {\small .038}\\
+\midrule
+ & CS & .625 $\pm$ {\small .011} & \textbf{.640 $\pm$ {\small .040}} & \textbf{.658 $\pm$ {\small .023}} & \textbf{.668 $\pm$ {\small .025}} & \textbf{.660 $\pm$ {\small .016}}\\
+
+ & ME & .608 $\pm$ {\small .039} & .621 $\pm$ {\small .061} & .625 $\pm$ {\small .035} & .640 $\pm$ {\small .038} & .639 $\pm$ {\small .040}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & .542 $\pm$ {\small .011} & .567 $\pm$ {\small .012} & .592 $\pm$ {\small .028} & .597 $\pm$ {\small .032} & .616 $\pm$ {\small .024}\\
+\bottomrule
+\end{tabular*}
+\caption{Resulting macro F1 scores for Sensationalism dataset with Adapter module used}
+\label{tab:results_full_sensation_10_adapter}
+\end{table}

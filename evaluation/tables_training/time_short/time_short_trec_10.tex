@@ -1,0 +1,115 @@
+\begin{table}[htbp]
+\centering
+\begin{subtable}{\linewidth}
+\centering
+\caption{PEFT module -- Adapter}
+
+\begin{tabular}{c|c|cccccccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{10}{c}{\textbf{Time (min)}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
+\midrule
+ & CS & 0.5 & 1.5 & 2.8 & 4.1 & 5.4 & 6.7 & 8.0 & 9.3 & 10.6 & 11.9\\
+
+ & ME & 0.5 & 1.5 & 2.8 & 4.1 & 5.4 & 6.6 & 7.9 & 9.2 & 10.4 & 11.7\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & 0.5 & 1.1 & 2.0 & 2.9 & 3.8 & 4.7 & 5.6 & 6.5 & 7.4 & 8.3\\
+\midrule
+ & CS & 0.5 & 1.5 & 2.8 & 4.1 & 5.4 & 6.7 & 8.0 & 9.3 & 10.6 & 11.9\\
+
+ & ME & 0.5 & 1.5 & 2.8 & 4.1 & 5.4 & 6.6 & 7.9 & 9.2 & 10.4 & 11.7\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & 0.5 & 1.1 & 2.0 & 2.9 & 3.8 & 4.7 & 5.6 & 6.5 & 7.4 & 8.3\\
+\midrule
+ & CS & 0.5 & 1.5 & 2.9 & 4.2 & 5.5 & 6.8 & 8.1 & 9.4 & 10.7 & 12.0\\
+
+ & ME & 0.5 & 1.5 & 2.8 & 4.1 & 5.4 & 6.7 & 8.0 & 9.3 & 10.5 & 11.8\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & 0.5 & 1.1 & 2.0 & 3.0 & 3.9 & 4.8 & 5.7 & 6.6 & 7.5 & 8.4\\
+\midrule
+ & CS & 0.5 & 1.5 & 2.9 & 4.4 & 6.2 & 8.2 & 10.4 & 12.9 & 15.5 & 18.5\\
+
+ & ME & 0.5 & 1.5 & 2.8 & 4.4 & 6.1 & 8.1 & 10.3 & 12.7 & 15.4 & 18.3\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & 0.5 & 1.1 & 2.1 & 3.2 & 4.6 & 6.2 & 8.0 & 10.0 & 12.3 & 14.8\\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\vspace{1em}
+\begin{subtable}{\linewidth}
+\centering
+\caption{PEFT module -- LoRA}
+
+\begin{tabular}{c|c|cccccccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{10}{c}{\textbf{Time (min)}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
+\midrule
+ & CS & 0.5 & 1.6 & 2.9 & 4.2 & 5.5 & 6.8 & 8.1 & 9.4 & 10.8 & 12.1\\
+
+ & ME & 0.5 & 1.6 & 2.9 & 4.2 & 5.4 & 6.7 & 8.0 & 9.3 & 10.6 & 11.8\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & 0.5 & 1.2 & 2.1 & 3.0 & 3.9 & 4.8 & 5.7 & 6.6 & 7.5 & 8.5\\
+\midrule
+ & CS & 0.5 & 1.6 & 2.9 & 4.2 & 5.5 & 6.8 & 8.1 & 9.4 & 10.7 & 12.1\\
+
+ & ME & 0.5 & 1.6 & 2.9 & 4.2 & 5.4 & 6.7 & 8.0 & 9.3 & 10.6 & 11.8\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & 0.5 & 1.2 & 2.1 & 3.0 & 3.9 & 4.8 & 5.7 & 6.6 & 7.5 & 8.5\\
+\midrule
+ & CS & 0.5 & 1.6 & 2.9 & 4.2 & 5.5 & 6.9 & 8.2 & 9.5 & 10.8 & 12.1\\
+
+ & ME & 0.5 & 1.6 & 2.9 & 4.2 & 5.5 & 6.8 & 8.1 & 9.4 & 10.7 & 11.9\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & 0.5 & 1.2 & 2.1 & 3.0 & 3.9 & 4.9 & 5.8 & 6.7 & 7.6 & 8.6\\
+\midrule
+ & CS & 0.5 & 1.6 & 2.9 & 4.5 & 6.3 & 8.3 & 10.6 & 13.1 & 15.8 & 18.7\\
+
+ & ME & 0.5 & 1.6 & 2.9 & 4.4 & 6.2 & 8.2 & 10.4 & 12.9 & 15.6 & 18.5\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & 0.5 & 1.2 & 2.1 & 3.3 & 4.7 & 6.3 & 8.1 & 10.2 & 12.5 & 15.0\\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\vspace{1em}
+\begin{subtable}{\linewidth}
+\centering
+\caption{PEFT module -- Prefix}
+
+\begin{tabular}{c|c|cccccccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{10}{c}{\textbf{Time (min)}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
+\midrule
+ & CS & 0.4 & 1.6 & 2.9 & 4.2 & 5.5 & 6.8 & 8.1 & 9.5 & 10.8 & 12.1\\
+
+ & ME & 0.4 & 1.6 & 2.9 & 4.2 & 5.5 & 6.8 & 8.0 & 9.3 & 10.6 & 11.9\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & 0.4 & 1.1 & 2.0 & 2.8 & 3.7 & 4.6 & 5.4 & 6.3 & 7.2 & 8.0\\
+\midrule
+ & CS & 0.4 & 1.5 & 2.8 & 4.1 & 5.4 & 6.6 & 7.9 & 9.2 & 10.5 & 11.7\\
+
+ & ME & 0.4 & 1.5 & 2.8 & 4.0 & 5.3 & 6.5 & 7.8 & 9.0 & 10.3 & 11.5\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & 0.4 & 1.1 & 1.9 & 2.8 & 3.6 & 4.5 & 5.3 & 6.2 & 7.0 & 7.9\\
+\midrule
+ & CS & 0.4 & 1.5 & 2.8 & 4.1 & 5.4 & 6.7 & 8.0 & 9.3 & 10.5 & 11.8\\
+
+ & ME & 0.4 & 1.5 & 2.8 & 4.1 & 5.3 & 6.6 & 7.8 & 9.1 & 10.4 & 11.6\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & 0.4 & 1.1 & 1.9 & 2.8 & 3.7 & 4.5 & 5.4 & 6.3 & 7.1 & 8.0\\
+\midrule
+ & CS & 0.4 & 1.5 & 2.8 & 4.4 & 6.1 & 8.1 & 10.4 & 12.8 & 15.5 & 18.4\\
+
+ & ME & 0.4 & 1.5 & 2.8 & 4.3 & 6.1 & 8.0 & 10.2 & 12.6 & 15.3 & 18.2\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & 0.4 & 1.1 & 2.0 & 3.1 & 4.4 & 6.0 & 7.8 & 9.8 & 12.0 & 14.5\\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\caption{Resulting time (in minutes) for TREC-6 dataset, split by the PEFT module used}
+\label{tab:time_short_trec_10}
+\end{table}

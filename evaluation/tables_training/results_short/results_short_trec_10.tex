@@ -1,0 +1,115 @@
+\begin{table}[htbp]
+\centering
+\begin{subtable}{\linewidth}
+\centering
+\caption{PEFT module -- Adapter}
+
+\begin{tabular}{c|c|cccccccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{10}{c}{\textbf{F1 score}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
+\midrule
+ & CS & \textbf{.447} & .606 & .663 & .704 & .750 & .756 & .757 & .746 & .790 & .831\\
+
+ & ME & .426 & .594 & .658 & .714 & .752 & .802 & .790 & \textbf{.859} & .876 & .848\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & .418 & .609 & .661 & .677 & .707 & .728 & .729 & .736 & .732 & .817\\
+\midrule
+ & CS & \textbf{.447} & .627 & .679 & .689 & .701 & .759 & .800 & .795 & .858 & .850\\
+
+ & ME & .426 & .630 & .668 & .712 & .739 & .779 & .831 & .857 & \textbf{.883} & \textbf{.874}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & .418 & .702 & .733 & .728 & .729 & .790 & .776 & .761 & .777 & .840\\
+\midrule
+ & CS & \textbf{.447} & .641 & .685 & .738 & .728 & .758 & .794 & .793 & .798 & .808\\
+
+ & ME & .426 & .629 & .675 & .719 & .759 & \textbf{.805} & \textbf{.836} & .858 & .837 & .850\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & .418 & \textbf{.721} & \textbf{.747} & .756 & .751 & .769 & .752 & .751 & .740 & .814\\
+\midrule
+ & CS & .368 & .619 & .675 & .732 & .766 & .800 & .828 & .855 & .869 & .866\\
+
+ & ME & .367 & .629 & .681 & .710 & .712 & .796 & .799 & .850 & .862 & .862\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & .375 & .715 & .738 & \textbf{.762} & \textbf{.774} & .785 & .786 & .801 & .770 & .801\\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\vspace{1em}
+\begin{subtable}{\linewidth}
+\centering
+\caption{PEFT module -- LoRA}
+
+\begin{tabular}{c|c|cccccccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{10}{c}{\textbf{F1 score}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
+\midrule
+ & CS & .210 & .496 & .590 & .650 & .663 & .677 & .687 & .692 & .684 & .685\\
+
+ & ME & .215 & .480 & .647 & .668 & .679 & .753 & .755 & .820 & .776 & .810\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & .225 & .477 & .638 & .656 & .692 & .709 & .714 & .706 & .716 & .729\\
+\midrule
+ & CS & .246 & .524 & .598 & .629 & .664 & .679 & .659 & .692 & .663 & .678\\
+
+ & ME & .247 & .536 & .638 & .688 & .720 & .748 & .756 & .769 & .805 & .804\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & \textbf{.256} & .551 & .652 & .660 & .694 & .695 & .714 & .707 & .716 & .778\\
+\midrule
+ & CS & .210 & .520 & .638 & .686 & .712 & .704 & .713 & .717 & .709 & .735\\
+
+ & ME & .215 & .495 & .649 & .669 & .700 & .753 & .778 & .787 & .832 & .857\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & .225 & .522 & .646 & .660 & .694 & .711 & .721 & .706 & .710 & .763\\
+\midrule
+ & CS & .204 & .590 & .710 & .721 & .738 & .750 & .767 & .767 & .771 & .778\\
+
+ & ME & .203 & .540 & .712 & \textbf{.748} & \textbf{.772} & \textbf{.810} & \textbf{.824} & \textbf{.864} & \textbf{.877} & \textbf{.883}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & .201 & \textbf{.614} & \textbf{.715} & .729 & .754 & .764 & .771 & .754 & .753 & .799\\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\vspace{1em}
+\begin{subtable}{\linewidth}
+\centering
+\caption{PEFT module -- Prefix}
+
+\begin{tabular}{c|c|cccccccccc}
+\toprule
+\multicolumn{2}{c|}{\textbf{Methods}} & \multicolumn{10}{c}{\textbf{F1 score}} \\
+\midrule
+\textbf{Training} & \textbf{Sampling} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
+\midrule
+ & CS & .456 & .600 & .664 & .685 & .696 & .706 & .711 & .721 & .768 & .784\\
+
+ & ME & .492 & .602 & .672 & \textbf{.768} & .786 & .803 & \textbf{.798} & .807 & .808 & .826\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-DER} & RND & .392 & .611 & .655 & .660 & .706 & .712 & .715 & .712 & .723 & .763\\
+\midrule
+ & CS & .489 & .665 & .704 & .733 & .734 & .747 & .770 & .788 & .765 & .751\\
+
+ & ME & \textbf{.509} & .633 & .670 & .684 & .698 & .702 & .710 & .705 & .712 & .773\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SD} & RND & .501 & .713 & .716 & .719 & .740 & .769 & .773 & .766 & .777 & .832\\
+\midrule
+ & CS & .489 & .660 & .703 & .743 & .738 & .715 & .778 & .756 & .820 & .809\\
+
+ & ME & \textbf{.509} & .648 & .677 & .698 & .702 & .735 & .768 & .769 & .774 & .779\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash CAL-SDS2} & RND & .501 & .705 & .714 & .747 & .744 & .772 & .770 & .753 & .751 & .836\\
+\midrule
+ & CS & .474 & .675 & .726 & .732 & .741 & .759 & .774 & .819 & .857 & .869\\
+
+ & ME & .447 & .623 & .709 & .741 & \textbf{.808} & \textbf{.866} & .769 & \textbf{.888} & \textbf{.880} & \textbf{.891}\\
+
+\multirow{-3}{*}{\raggedright\arraybackslash AL} & RND & .477 & \textbf{.727} & \textbf{.744} & .762 & .776 & .783 & .772 & .804 & .786 & .827\\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\caption{Resulting macro F1 scores for TREC-6 dataset, split by the PEFT module used}
+\label{tab:results_short_trec_10}
+\end{table}
