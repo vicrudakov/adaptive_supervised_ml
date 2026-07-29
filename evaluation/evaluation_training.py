@@ -31,7 +31,7 @@ def summarise_results(dataset_name, type):
                 row_f1 = [exp_dir, run]
 
                 # Loop for each directory peft_module_i for continual active learning iteration i
-                for i in range(10):
+                for i in range(1 if type == "baselines_2" else 10):
                     peft_module_classification_report_path = os.path.join(run_path, f'peft_module_{i}', 'classification_report.csv')
                     classification_report = pd.read_csv(peft_module_classification_report_path, index_col=0)
 
@@ -54,16 +54,17 @@ def summarise_results(dataset_name, type):
                 results_f1.append(row_f1)
 
     # Dataframes for continual active learning results
-    df_results_acc = pd.DataFrame(results_acc, columns=['experiment', 'run'] + [f'acc_{i}' for i in range(10)])
-    df_results_prec = pd.DataFrame(results_prec, columns=['experiment', 'run'] + [f'prec_{i}' for i in range(10)])
-    df_results_rec = pd.DataFrame(results_rec, columns=['experiment', 'run'] + [f'rec_{i}' for i in range(10)])
-    df_results_f1 = pd.DataFrame(results_f1, columns=['experiment', 'run'] + [f'f1_{i}' for i in range(10)])
+    df_results_acc = pd.DataFrame(results_acc, columns=['experiment', 'run'] + [f'acc_{i}' for i in range(1 if type == "baselines_2" else 10)])
+    df_results_prec = pd.DataFrame(results_prec, columns=['experiment', 'run'] + [f'prec_{i}' for i in range(1 if type == "baselines_2" else 10)])
+    df_results_rec = pd.DataFrame(results_rec, columns=['experiment', 'run'] + [f'rec_{i}' for i in range(1 if type == "baselines_2" else 10)])
+    df_results_f1 = pd.DataFrame(results_f1, columns=['experiment', 'run'] + [f'f1_{i}' for i in range(1 if type == "baselines_2" else 10)])
 
     # Saving dataframes for continual active learning results
-    df_results_acc.to_csv(f'results_{type}/{dataset_name}/results_acc.csv', index=False)
-    df_results_prec.to_csv(f'results_{type}/{dataset_name}/results_prec.csv', index=False)
-    df_results_rec.to_csv(f'results_{type}/{dataset_name}/results_rec.csv', index=False)
-    df_results_f1.to_csv(f'results_{type}/{dataset_name}/results_f1.csv', index=False)
+    save_dir = "results_" + ("training" if type == "training" else "baselines")
+    df_results_acc.to_csv(f'{save_dir}/{type}/{dataset_name}/results_acc.csv', index=False)
+    df_results_prec.to_csv(f'{save_dir}/{type}/{dataset_name}/results_prec.csv', index=False)
+    df_results_rec.to_csv(f'{save_dir}/{type}/{dataset_name}/results_rec.csv', index=False)
+    df_results_f1.to_csv(f'{save_dir}/{type}/{dataset_name}/results_f1.csv', index=False)
 
 def summarise_time(dataset_name, type):
     # Empty arrays for time
@@ -92,7 +93,7 @@ def summarise_time(dataset_name, type):
                 row_test = [exp_dir, run]
 
                 # Loop for each directory peft_module_i for continual active learning iteration i
-                for i in range(10):
+                for i in range(1 if type == "baselines_2" else 10):
                     peft_module_time_path = os.path.join(run_path, f'peft_module_{i}', 'time.json')
                     with open(peft_module_time_path, 'r') as file:
                         time = json.load(file)
@@ -113,14 +114,15 @@ def summarise_time(dataset_name, type):
                 time_test.append(row_test)
 
     # Dataframes for time
-    df_time_selection = pd.DataFrame(time_selection, columns=['experiment', 'run'] + [f'time_{i}' for i in range(10)])
-    df_time_training = pd.DataFrame(time_training, columns=['experiment', 'run'] + [f'time_{i}' for i in range(10)])
-    df_time_test = pd.DataFrame(time_test, columns=['experiment', 'run'] + [f'time_{i}' for i in range(10)])
+    df_time_selection = pd.DataFrame(time_selection, columns=['experiment', 'run'] + [f'time_{i}' for i in range(1 if type == "baselines_2" else 10)])
+    df_time_training = pd.DataFrame(time_training, columns=['experiment', 'run'] + [f'time_{i}' for i in range(1 if type == "baselines_2" else 10)])
+    df_time_test = pd.DataFrame(time_test, columns=['experiment', 'run'] + [f'time_{i}' for i in range(1 if type == "baselines_2" else 10)])
 
     # Saving dataframes for time
-    df_time_selection.to_csv(f'time_{type}/{dataset_name}/time_selection.csv', index=False)
-    df_time_training.to_csv(f'time_{type}/{dataset_name}/time_training.csv', index=False)
-    df_time_test.to_csv(f'time_{type}/{dataset_name}/time_test.csv', index=False)
+    save_dir = "time_" + ("training" if type == "training" else "baselines")
+    df_time_selection.to_csv(f'{save_dir}/{type}/{dataset_name}/time_selection.csv', index=False)
+    df_time_training.to_csv(f'{save_dir}/{type}/{dataset_name}/time_training.csv', index=False)
+    df_time_test.to_csv(f'{save_dir}/{type}/{dataset_name}/time_test.csv', index=False)
 
 # summarise_results("agnews", type="training")
 # summarise_results("sensation", type="training")
@@ -130,10 +132,18 @@ def summarise_time(dataset_name, type):
 # summarise_time("sensation", type="training")
 # summarise_time("trec", type="training")
 
-# summarise_results("agnews", type="baselines")
-# summarise_results("sensation", type="baselines")
-# summarise_results("trec", type="baselines")
+# summarise_results("agnews", type="baselines_1")
+# summarise_results("sensation", type="baselines_1")
+# summarise_results("trec", type="baselines_1")
 #
-# summarise_time("agnews", type="baselines")
-# summarise_time("sensation", type="baselines")
-# summarise_time("trec", type="baselines")
+# summarise_time("agnews", type="baselines_1")
+# summarise_time("sensation", type="baselines_1")
+# summarise_time("trec", type="baselines_1")
+
+summarise_results("agnews", type="baselines_2")
+summarise_results("sensation", type="baselines_2")
+summarise_results("trec", type="baselines_2")
+
+summarise_time("agnews", type="baselines_2")
+summarise_time("sensation", type="baselines_2")
+summarise_time("trec", type="baselines_2")

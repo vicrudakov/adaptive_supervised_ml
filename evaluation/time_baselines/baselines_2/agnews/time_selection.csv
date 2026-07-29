@@ -1,0 +1,10 @@
+experiment,run,time_0
+baseline_agnews_100_adapter,1,117
+baseline_agnews_100_adapter,2,118
+baseline_agnews_100_adapter,3,114
+baseline_agnews_100_lora,1,122
+baseline_agnews_100_lora,2,120
+baseline_agnews_100_lora,3,115
+baseline_agnews_100_prefix,1,115
+baseline_agnews_100_prefix,2,120
+baseline_agnews_100_prefix,3,126
