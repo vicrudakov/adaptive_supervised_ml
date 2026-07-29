@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 from loguru import logger
 from transformers import TrainingArguments
-from adapters import AutoAdapterModel, SeqBnConfig, LoRAConfig, PrefixTuningConfig, UniPELTConfig, AdapterTrainer
+from adapters import AutoAdapterModel, SeqBnConfig, LoRAConfig, PrefixTuningConfig, AdapterTrainer
 import numpy as np
 from sklearn.metrics import classification_report
 from tqdm import tqdm
@@ -106,13 +106,6 @@ def run_peft_module_training(experiment, config, data, device, peft_module_name=
                                             alpha=config['parameter_efficient_fine_tuning']['alpha'])
         if arch == "prefix":
             config_peft_module = PrefixTuningConfig(prefix_length=config['parameter_efficient_fine_tuning']['prefix_len'])
-        if arch == "unipelt":
-            config_peft_module = UniPELTConfig(
-                PrefixTuningConfig(prefix_length=config['parameter_efficient_fine_tuning']['prefix_len'], use_gating=True),
-                SeqBnConfig(reduction_factor=config['parameter_efficient_fine_tuning']['c_rate'], use_gating=True),
-                LoRAConfig(r=config['parameter_efficient_fine_tuning']['r'],
-                           alpha=config['parameter_efficient_fine_tuning']['alpha'], use_gating=True)
-            )
 
         # Set model configuration
         model = AutoAdapterModel.from_pretrained(config['training']['model'])

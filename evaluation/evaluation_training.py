@@ -140,10 +140,10 @@ def summarise_time(dataset_name, type):
 # summarise_time("sensation", type="baselines_1")
 # summarise_time("trec", type="baselines_1")
 
-summarise_results("agnews", type="baselines_2")
-summarise_results("sensation", type="baselines_2")
-summarise_results("trec", type="baselines_2")
-
-summarise_time("agnews", type="baselines_2")
-summarise_time("sensation", type="baselines_2")
-summarise_time("trec", type="baselines_2")
+# summarise_results("agnews", type="baselines_2")
+# summarise_results("sensation", type="baselines_2")
+# summarise_results("trec", type="baselines_2")
+#
+# summarise_time("agnews", type="baselines_2")
+# summarise_time("sensation", type="baselines_2")
+# summarise_time("trec", type="baselines_2")
