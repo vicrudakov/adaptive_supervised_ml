@@ -273,4 +273,127 @@ def run_experiment(path):
 
 
 if __name__ == '__main__':
-    pass
+    ### Running the Full Training Pipeline
+
+    ## Hyperparameter Tuning
+
+    # The first step in the training pipeline is conducting hyperparameter tuning. The approach used for tuning is grid
+    # search. In this case, hyperparameter tuning involves two steps. The first step consists of tuning the
+    # hyperparameters for CL methods for each dataset while keeping the PEFT module settings fixed. The second step
+    # involves fixing the tuned hyperparameters for the CL methods obtained in the first step and tuning the
+    # hyperparameters for the PEFT methods for each dataset. For both steps, the AL sampling method is fixed. Dividing
+    # the process into two steps is necessary to ensure a computationally feasible number of configurations to be assessed.
+
+    # For the first step of the hyperparameter tuning, the experiment directories need to be created using the code
+    # corresponding to the first step in utility/create_tuning/create_tuning.py. These will be created in the
+    # utility/create_tuning/tuning_1/ directory. For details on configurations settings, please refer to the
+    # utility/create_tuning/create_tuning.py file. These directories need to be copied to training/tuning_1/.
+    # After that, training can be conducted using the code below:
+
+    directory = Path('tuning_1')
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("tuning_agnews"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("tuning_sensation"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("tuning_trec"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+
+    # After obtaining all the results, these results and the corresponding training times need to be summarized using
+    # the code corresponding to the first step in evaluation/evaluation_tuning.py. Next, using the code corresponding
+    # to the first step in evaluation/evaluation_tuning.R, the configurations for the CL methods that show the best
+    # performance for each dataset need to be identified. The obtained values need to be entered in the respective
+    # places in the code corresponding to the second step in utility/create_tuning/create_tuning.py. Next, for the
+    # second step of hyperparameter tuning, the experiment directories need to be created using the code corresponding
+    # to the second step in utility/create_tuning/create_tuning.py. These will be created in the
+    # utility/create_tuning/tuning_2/ directory. For details on configurations settings, please refer to the
+    # utility/create_tuning/create_tuning.py file. These directories must be copied to training/tuning_2/. After that,
+    # training can be conducted using the code below:
+
+    directory = Path('tuning_2')
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("tuning_agnews"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("tuning_sensation"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("tuning_trec"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+
+    # Once all the results have been obtained, these results and the corresponding training times need to be summarized
+    # using the code corresponding to the second step in evaluation/evaluation_tuning.py. Next, using the code
+    # corresponding to the second step in evaluation/evaluation_tuning.R, the PEFT methods configurations that show
+    # the best performance for each dataset need to be identified.
+
+    ## Training
+
+    # Once the optimal configurations for CL and PEFT have been tuned, these obtained values must be entered in the appropriate
+    # places in the code in utility/create_training/create_training.py and utility/create_baselines/create_baselines.py.
+
+    # For training, the experiment directories need to be created using the code in utility/create_training/create_training.py.
+    # These will be created in the utility/create_training/training/ directory. For details on configuration settings, please
+    # refer to the utility/create_training/create_training.py file. These directories must be copied to training/training/.
+    # After that, training can be conducted using the code below:
+
+    directory = Path('training')
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("training_agnews"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("training_sensation"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("training_trec"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+
+    # For baselines, the experiment directories need to be created using the code in
+    # utility/create_baselines/create_baselines.py. In this case, there are two types of baselines: the AL baseline and
+    # the full dataset training baseline. The necessary experiment directories for both types will be created in the
+    # utility/create_baselines/baselines_1/ and utility/create_baselines/baselines_2/ directories, respectively. For
+    # details on configuration settings, please refer to the file utility/create_baselines/create_baselines.py. These
+    # directories should be copied to training/baselines_1/ and training/baselines_2/, respectively. After that,
+    # training can be conducted using the code below:
+
+    directory = Path('baselines_1')
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("baseline_agnews"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("baseline_sensation"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("baseline_trec"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+
+    directory = Path('baselines_2')
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("baseline_agnews"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("baseline_sensation"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and item.name.startswith("baseline_trec"):
+            if not (item / "output" / "run_1").is_dir():
+                run_experiment(f"{directory}/{item.name}")
+
+    # After obtaining all the results for the training and baselines, these results and the corresponding training times
+    # need to be summarized using the code in evaluation/evaluation_training.py. Next, the necessary plots and tables
+    # can be generated using the code in evaluation/evaluation_training.R.

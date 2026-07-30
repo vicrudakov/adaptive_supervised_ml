@@ -1,0 +1,1 @@
+This directory is used for clarity purposes in describing running the training pipeline in training.py. Please refer to that file.
