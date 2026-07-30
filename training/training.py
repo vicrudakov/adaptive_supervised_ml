@@ -275,18 +275,26 @@ def run_experiment(path):
 if __name__ == '__main__':
     ### Running the Full Training Pipeline
 
+    ## Data Preparation
+
+    # Before beginning the training process, the data needs to be prepared by executing the code in data_preparation.py
+    # for the individual datasets located in their respective directories within the data/ directory. This will result
+    # in train.csv and test.csv files for each dataset. Directories corresponding to the datasets containing the
+    # train.csv and test.csv files must be created in the utility/create_baselines/, utility/create_training/,
+    # and utility/create_tuning/ directories.
+
     ## Hyperparameter Tuning
 
-    # The first step in the training pipeline is conducting hyperparameter tuning. The approach used for tuning is grid
-    # search. In this case, hyperparameter tuning involves two steps. The first step consists of tuning the
-    # hyperparameters for CL methods for each dataset while keeping the PEFT module settings fixed. The second step
-    # involves fixing the tuned hyperparameters for the CL methods obtained in the first step and tuning the
-    # hyperparameters for the PEFT methods for each dataset. For both steps, the AL sampling method is fixed. Dividing
-    # the process into two steps is necessary to ensure a computationally feasible number of configurations to be assessed.
+    # The next step is conducting hyperparameter tuning. The approach used for tuning is grid search. In this case,
+    # hyperparameter tuning involves two steps. The first step consists of tuning the hyperparameters for CL methods
+    # for each dataset while keeping the PEFT module settings fixed. The second step involves fixing the tuned
+    # hyperparameters for the CL methods obtained in the first step and tuning the hyperparameters for the PEFT methods
+    # for each dataset. For both steps, the AL sampling method is fixed. Dividing the process into two steps is
+    # necessary to ensure a computationally feasible number of configurations to be assessed.
 
     # For the first step of the hyperparameter tuning, the experiment directories need to be created using the code
     # corresponding to the first step in utility/create_tuning/create_tuning.py. These will be created in the
-    # utility/create_tuning/tuning_1/ directory. For details on configurations settings, please refer to the
+    # utility/create_tuning/tuning_1/ directory. For details on configuration settings, please refer to the
     # utility/create_tuning/create_tuning.py file. These directories need to be copied to training/tuning_1/.
     # After that, training can be conducted using the code below:
 
@@ -311,7 +319,7 @@ if __name__ == '__main__':
     # places in the code corresponding to the second step in utility/create_tuning/create_tuning.py. Next, for the
     # second step of hyperparameter tuning, the experiment directories need to be created using the code corresponding
     # to the second step in utility/create_tuning/create_tuning.py. These will be created in the
-    # utility/create_tuning/tuning_2/ directory. For details on configurations settings, please refer to the
+    # utility/create_tuning/tuning_2/ directory. For details on configuration settings, please refer to the
     # utility/create_tuning/create_tuning.py file. These directories must be copied to training/tuning_2/. After that,
     # training can be conducted using the code below:
 
