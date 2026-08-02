@@ -1,0 +1,29 @@
+\begin{table*}[htbp]
+\centering
+
+\begin{tabular}{c|c|c|c}
+\toprule
+\textbf{Dataset} & \textbf{PEFT module} & \textbf{F1 score} & \textbf{Time (min)}\\
+\midrule
+ & Adapter & .907 $\pm$ {\small .006} & 26.9 $\pm$ {\small 0.07}\\
+
+ & LoRA & .919 $\pm$ {\small .003} & 26.6 $\pm$ {\small 0.09}\\
+
+\multirow{-3}{*}{\centering\arraybackslash AG's news} & Prefix-tuning & .907 $\pm$ {\small .005} & 26.3 $\pm$ {\small 0.01}\\
+\hline
+ & Adapter & .690 $\pm$ {\small .021} & 17.9 $\pm$ {\small 0.03}\\
+
+ & LoRA & .719 $\pm$ {\small .012} & 17.8 $\pm$ {\small 0.07}\\
+
+\multirow{-3}{*}{\centering\arraybackslash Sensationalism} & Prefix-tuning & .610 $\pm$ {\small .160} & 17.3 $\pm$ {\small 0.01}\\
+\hline
+ & Adapter & .918 $\pm$ {\small .007} & 22.3 $\pm$ {\small 0.02}\\
+
+ & LoRA & .908 $\pm$ {\small .008} & 22.1 $\pm$ {\small 0.04}\\
+
+\multirow{-3}{*}{\centering\arraybackslash TREC-6} & Prefix-tuning & .909 $\pm$ {\small .002} & 21.5 $\pm$ {\small 0.01}\\
+\bottomrule
+\end{tabular}
+\caption{Resulting macro F1 scores and time (in minutes) for the full dataset training}
+\label{tab:baselines_full_time}
+\end{table*}

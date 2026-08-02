@@ -3,6 +3,7 @@ library(tidyr)
 library(tidyverse)
 library(stringr)
 library(ggplot2)
+library(ggh4x)
 library(scales)
 library(lemon)
 library(grid)
@@ -378,7 +379,7 @@ library(kableExtra)
         numeric_size = total_size / 10 + total_size / 10 * Iteration,
         Size = fct_reorder(paste0(numeric_size, "%"), numeric_size)
       ) %>%
-      rename(`Sampling method` = "AL method") %>%
+      rename(`Query method` = "AL method") %>%
       rename(`Training method` = "Method") %>%
       ggplot(aes(x = mean_speedup, 
                  y = if(type == "relative") {
@@ -386,7 +387,7 @@ library(kableExtra)
                  } else if (type == "absolute") {
                    mean_f1_training
                  },
-                 shape = `Training method`, color = `Sampling method`)) +
+                 shape = `Training method`, color = `Query method`)) +
       geom_point(size = 3) + 
       scale_y_continuous(expand = expansion(mult = 0.1)) +
       scale_x_continuous(breaks = seq(1, 2.5, by = 0.5), limits = c(0.95, 2.5)) +
@@ -525,7 +526,7 @@ library(kableExtra)
              numeric_size = total_size / 10 + total_size / 10 * Iteration,
              Size = fct_reorder(paste0(numeric_size, "%"), numeric_size)
       ) %>%
-      rename(`Sampling method` = "AL method") %>%
+      rename(`Query method` = "AL method") %>%
       rename(`Training method` = "Method") %>%
       ggplot(aes(x = mean_speedup, 
                  y = if(type == "relative") {
@@ -533,7 +534,7 @@ library(kableExtra)
                  } else if (type == "absolute") {
                    mean_f1_training
                  },
-                 shape = `Training method`, color = `Sampling method`)) +
+                 shape = `Training method`, color = `Query method`)) +
       geom_point(size = 3) + 
       scale_y_continuous(expand = expansion(mult = 0.1)) +
       scale_x_continuous(breaks = seq(1, 2.5, by = 0.5), limits = c(0.95, 2.5)) +
@@ -611,12 +612,12 @@ library(kableExtra)
       mutate(Method = as.character(Method)) %>%
       pivot_wider(names_from = Iteration_str, values_from = mean_sd) %>%
       rename(Training = Method) %>%
-      rename(Sampling = `AL method`)
+      rename(Query = `AL method`)
     
     peft_modules <- unique(all_formatted$`PEFT module`)
     
     tex_lines <- c(
-      "\\begin{table}[htbp]",
+      "\\begin{table*}[htbp]",
       "\\centering"
     )
     
@@ -675,7 +676,7 @@ library(kableExtra)
                         dataset == "sensation" ~ "Sensationalism",
                         dataset == "trec" ~ "TREC-6")),
       sprintf("\\label{tab:results_short_%s_%s}", dataset, total_size),
-      "\\end{table}"
+      "\\end{table*}"
     )
     final_tex <- paste(tex_lines, collapse = "\n")
     
@@ -761,7 +762,7 @@ library(kableExtra)
       mutate(Method = as.character(Method)) %>%
       pivot_wider(names_from = Iteration_str, values_from = mean_sd) %>%
       rename(Training = Method) %>%
-      rename(Sampling = `AL method`)
+      rename(Query = `AL method`)
     
     table_tex_top_df <- all_formatted %>% select(1:2, 3:7)
     n_cols_top <- ncol(table_tex_top_df)
@@ -822,7 +823,7 @@ library(kableExtra)
       gsub(sprintf("\\\\cline\\{1-%d\\}", n_cols_bot), "\\\\hline", .)
     
     final_tex <- paste(
-      "\\begin{table}[htbp]",
+      "\\begin{table*}[htbp]",
       "\\centering",
       table_tex_top,
       "\\vspace{0.5em}",
@@ -835,7 +836,7 @@ library(kableExtra)
                         peft_module == "lora" ~ "LoRA",
                         peft_module == "prefix" ~ "prefix-tuning")),
       sprintf("\\label{tab:results_full_%s_%s_%s}", dataset, total_size, peft_module),
-      "\\end{table}",
+      "\\end{table*}",
       sep = "\n"
     )
     
@@ -906,12 +907,12 @@ library(kableExtra)
       mutate(Method = as.character(Method)) %>%
       pivot_wider(names_from = Iteration_str, values_from = mean_formatted) %>%
       rename(Training = Method) %>%
-      rename(Sampling = `AL method`)
+      rename(Query = `AL method`)
     
     peft_modules <- unique(all_formatted$`PEFT module`)
     
     tex_lines <- c(
-      "\\begin{table}[htbp]",
+      "\\begin{table*}[htbp]",
       "\\centering"
     )
     
@@ -970,7 +971,7 @@ library(kableExtra)
                         dataset == "sensation" ~ "Sensationalism",
                         dataset == "trec" ~ "TREC-6")),
       sprintf("\\label{tab:time_short_%s_%s}", dataset, total_size),
-      "\\end{table}"
+      "\\end{table*}"
     )
     final_tex <- paste(tex_lines, collapse = "\n")
     
@@ -1055,7 +1056,7 @@ library(kableExtra)
       mutate(Method = as.character(Method)) %>%
       pivot_wider(names_from = Iteration_str, values_from = mean_sd) %>%
       rename(Training = Method) %>%
-      rename(Sampling = `AL method`)
+      rename(Query = `AL method`)
     
     table_tex_top_df <- all_formatted %>% select(1:2, 3:7)
     n_cols_top <- ncol(table_tex_top_df)
@@ -1116,7 +1117,7 @@ library(kableExtra)
       gsub(sprintf("\\\\cline\\{1-%d\\}", n_cols_bot), "\\\\hline", .)
     
     final_tex <- paste(
-      "\\begin{table}[htbp]",
+      "\\begin{table*}[htbp]",
       "\\centering",
       table_tex_top,
       "\\vspace{0.5em}",
@@ -1129,7 +1130,7 @@ library(kableExtra)
                         peft_module == "lora" ~ "LoRA",
                         peft_module == "prefix" ~ "prefix-tuning")),
       sprintf("\\label{tab:time_full_%s_%s_%s}", dataset, total_size, peft_module),
-      "\\end{table}",
+      "\\end{table*}",
       sep = "\n"
     )
     
@@ -1185,13 +1186,7 @@ library(kableExtra)
                            `CL method` == "SDS2" ~ "CAL-SDS2")
       )
     
-    speedup_baselines <- time_df_baselines_proc %>%
-      mutate(
-        mean_speedup = 1,
-        Method = "AL"
-      )
-    
-    results_df <- bind_rows(speedup_training, speedup_baselines)
+    results_df <- speedup_training
     
     all_formatted <- results_df %>%
       mutate(
@@ -1199,17 +1194,15 @@ library(kableExtra)
         mean_formatted = sprintf("%.1f$\\times$", mean_speedup)
       ) %>%
       select(`PEFT module`, Method, `AL method`, Iteration_str, mean_formatted) %>%
-      mutate(Method = factor(Method, levels = c(setdiff(unique(Method), "AL"), "AL"))) %>%
       arrange(`PEFT module`, Method, `AL method`) %>%
-      mutate(Method = as.character(Method)) %>%
       pivot_wider(names_from = Iteration_str, values_from = mean_formatted) %>%
       rename(Training = Method) %>%
-      rename(Sampling = `AL method`)
+      rename(Query = `AL method`)
     
     peft_modules <- unique(all_formatted$`PEFT module`)
     
     tex_lines <- c(
-      "\\begin{table}[htbp]",
+      "\\begin{table*}[htbp]",
       "\\centering"
     )
     
@@ -1268,15 +1261,76 @@ library(kableExtra)
                         dataset == "sensation" ~ "Sensationalism",
                         dataset == "trec" ~ "TREC-6")),
       sprintf("\\label{tab:speedup_short_%s_%s}", dataset, total_size),
-      "\\end{table}"
+      "\\end{table*}"
     )
     final_tex <- paste(tex_lines, collapse = "\n")
     
     writeLines(final_tex, con = file_path)
   }
   
+  # Full baselines table creation (results)
+  create_baselines_full_table <- function(results_df_baselines_full_list, file_path) {
+    results_df_baselines_full <- do.call(rbind, results_df_baselines_full_list)
+    
+    results_df_baselines_full <- results_df_baselines_full %>%
+      select(-`Total size`) %>%
+      mutate(group_id = ceiling(row_number() / max(run))) %>%
+      rename(f1 = f1_0) %>%
+      group_by(group_id) %>%
+      summarise(
+        across(c("Dataset", "PEFT module"), first),
+        mean_f1 = mean(f1),
+        sd_f1 = sd(f1),
+        .groups = "drop"
+      ) %>%
+      select(-group_id)
+    
+    all_formatted <- results_df_baselines_full %>%
+      mutate(
+        mean_str_f1 = sub("^0\\.", ".", sprintf("%.3f", mean_f1)),
+        sd_str_f1 = ifelse(is.na(sd_f1), "", sub("^0\\.", ".", sprintf("%.3f", sd_f1))),
+        mean_sd_f1 = ifelse(is.na(sd_f1), 
+                            mean_str_f1, 
+                            paste0(mean_str_f1, " $\\pm$ {\\small ", sd_str_f1, "}"))
+      ) %>%
+      mutate(Dataset = case_when(Dataset == "agnews" ~ "AG's news",
+                                 Dataset == "sensation" ~ "Sensationalism",
+                                 Dataset == "trec" ~ "TREC-6")) %>%
+      select(Dataset, `PEFT module`, `F1 score` = mean_sd_f1) %>%
+      arrange(Dataset, `PEFT module`)
+    
+    n_cols <- ncol(all_formatted)
+    col_format <- paste(rep("c", n_cols), collapse = "|")
+    
+    latex_table <- all_formatted %>%
+      kable(
+        format = "latex", 
+        escape = FALSE, 
+        booktabs = TRUE,
+        align = "c"
+      ) %>%
+      row_spec(0, bold = TRUE) %>%
+      collapse_rows(columns = 1, valign = "middle", latex_hline = "custom", custom_latex_hline = 1) %>%
+      gsub("\\\\begin\\{tabular\\}\\{[^\\}]+\\}", 
+           sprintf("\\\\begin{tabular}{%s}", col_format), .) %>%
+      gsub(sprintf("\\\\cmidrule.*?\\{1-%d\\}", n_cols), "\\\\hline", ., perl = TRUE) %>%
+      gsub(sprintf("\\\\cline\\{1-%d\\}", n_cols), "\\\\hline", .)
+    
+    tex_lines <- c(
+      "\\begin{table}[htbp]",
+      "\\centering",
+      latex_table,
+      "\\caption{Resulting macro F1 scores for the full dataset training}",
+      "\\label{tab:baselines_full}",
+      "\\end{table}"
+    )
+    
+    final_tex <- paste(tex_lines, collapse = "\n")
+    writeLines(final_tex, con = file_path)
+  }
+  
   # Full baselines table creation (results and time)
-  create_baselines_full_table <- function(results_df_baselines_full_list, time_df_baselines_full_list, file_path) {
+  create_baselines_full_table_time <- function(results_df_baselines_full_list, time_df_baselines_full_list, file_path) {
     results_df_baselines_full <- do.call(rbind, results_df_baselines_full_list)
     time_df_baselines_full <- do.call(rbind, time_df_baselines_full_list)
     
@@ -1347,12 +1401,12 @@ library(kableExtra)
       gsub(sprintf("\\\\cline\\{1-%d\\}", n_cols), "\\\\hline", .)
     
     tex_lines <- c(
-      "\\begin{table}[htbp]",
+      "\\begin{table*}[htbp]",
       "\\centering",
       latex_table,
       "\\caption{Resulting macro F1 scores and time (in minutes) for the full dataset training}",
-      "\\label{tab:baselines_full}",
-      "\\end{table}"
+      "\\label{tab:baselines_full_time}",
+      "\\end{table*}"
     )
     
     final_tex <- paste(tex_lines, collapse = "\n")
@@ -1522,5 +1576,6 @@ create_speedup_table(time_df_training_sensation, time_df_baselines_sensation,
 create_speedup_table(time_df_training_trec, time_df_baselines_trec,
                      10, "tables_training/speedup/speedup_trec_10.tex")
 
-create_baselines_full_table(results_df_baselines_full_list, time_df_baselines_full_list, "tables_training/baselines/baselines_full.tex")
+create_baselines_full_table(results_df_baselines_full_list, "tables_training/baselines/baselines_full.tex")
+create_baselines_full_table_time(results_df_baselines_full_list, time_df_baselines_full_list, "tables_training/baselines/baselines_full_time.tex")
 

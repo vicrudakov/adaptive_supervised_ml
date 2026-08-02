@@ -1,11 +1,11 @@
-\begin{table}[htbp]
+\begin{table*}[htbp]
 \centering
 
 \begin{tabular*}{\linewidth}{c|c|@{\extracolsep{\fill}}ccccc}
 \toprule
 \multicolumn{2}{c|}{\textbf{Method}} & \multicolumn{5}{c}{\textbf{Time (min)}} \\
 \midrule
-\textbf{Training} & \textbf{Sampling} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%}\\
+\textbf{Training} & \textbf{Query} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%}\\
 \midrule
  & CS & 0.6 $\pm$ {\small 0.01} & 2.0 $\pm$ {\small 0.01} & 3.6 $\pm$ {\small 0.02} & 5.2 $\pm$ {\small 0.02} & 6.8 $\pm$ {\small 0.03}\\
 
@@ -38,7 +38,7 @@
 \toprule
 \multicolumn{2}{c|}{\textbf{Method}} & \multicolumn{5}{c}{\textbf{Time (min)}} \\
 \midrule
-\textbf{Training} & \textbf{Sampling} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
+\textbf{Training} & \textbf{Query} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
 \midrule
  & CS & 8.4 $\pm$ {\small 0.04} & 10.0 $\pm$ {\small 0.04} & 11.6 $\pm$ {\small 0.05} & 13.2 $\pm$ {\small 0.06} & 14.8 $\pm$ {\small 0.06}\\
 
@@ -67,4 +67,4 @@
 \end{tabular*}
 \caption{Resulting time (in minutes) for AG's news dataset with LoRA module used}
 \label{tab:time_full_agnews_10_lora}
-\end{table}
+\end{table*}

@@ -1,11 +1,11 @@
-\begin{table}[htbp]
+\begin{table*}[htbp]
 \centering
 
 \begin{tabular*}{\linewidth}{c|c|@{\extracolsep{\fill}}ccccc}
 \toprule
 \multicolumn{2}{c|}{\textbf{Method}} & \multicolumn{5}{c}{\textbf{F1 score}} \\
 \midrule
-\textbf{Training} & \textbf{Sampling} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%}\\
+\textbf{Training} & \textbf{Query} & \textbf{1\%} & \textbf{2\%} & \textbf{3\%} & \textbf{4\%} & \textbf{5\%}\\
 \midrule
  & CS & .884 $\pm$ {\small .004} & .884 $\pm$ {\small .007} & .888 $\pm$ {\small .010} & .890 $\pm$ {\small .012} & .889 $\pm$ {\small .009}\\
 
@@ -38,7 +38,7 @@
 \toprule
 \multicolumn{2}{c|}{\textbf{Method}} & \multicolumn{5}{c}{\textbf{F1 score}} \\
 \midrule
-\textbf{Training} & \textbf{Sampling} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
+\textbf{Training} & \textbf{Query} & \textbf{6\%} & \textbf{7\%} & \textbf{8\%} & \textbf{9\%} & \textbf{10\%}\\
 \midrule
  & CS & .896 $\pm$ {\small .004} & .897 $\pm$ {\small .006} & .899 $\pm$ {\small .006} & .894 $\pm$ {\small .007} & .895 $\pm$ {\small .009}\\
 
@@ -67,4 +67,4 @@
 \end{tabular*}
 \caption{Resulting macro F1 scores for AG's news dataset with prefix-tuning module used}
 \label{tab:results_full_agnews_10_prefix}
-\end{table}
+\end{table*}
